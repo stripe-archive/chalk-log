@@ -1,0 +1,17 @@
+require 'bundler/gem_tasks'
+require 'bundler/setup'
+require 'chalk-rake/gem_tasks'
+require 'rake/testtask'
+
+task :default do
+  sh 'rake -T'
+end
+
+Rake::TestTask.new do |t|
+  t.libs = ["lib"]
+  # t.warning = true
+  t.verbose = true
+  t.test_files = FileList['test/**/*.rb'].reject do |file|
+    file.end_with?('_lib.rb') || file.include?('/_lib/')
+  end
+end

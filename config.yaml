@@ -1,0 +1,22 @@
+chalk:
+  log:
+    # The default log level
+    default_level: 'INFO'
+
+    # Whether to enable tagging (with timestamp, PID, action_id).
+    tagging: true
+
+    # Whether to enable tagging with PID (can be subsumed by
+    # `tagging: false`)
+    pid: true
+
+    # Whether to enable tagging with timestamp (can be subsumed by
+    # `tagging: false`). This option is set automatically in
+    # lib/chalk-log.rb.
+    timestamp: null
+
+    # Whether to show logs at all
+    disabled: false
+
+    # Whether to remove gem lines from backtraces
+    compress_backtraces: false
