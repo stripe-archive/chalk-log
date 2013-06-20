@@ -9,7 +9,7 @@ Use Chalk::Log as follows:
 
     module A
       include Chalk::Log
-      log.ann('hello', :key => 'value')
+      log.info('hello', :key => 'value')
     end
     #=> [2013-06-18 22:18:28.314756] [64682] hello: key="value"
 
@@ -53,14 +53,9 @@ You can also log errors nicely:
     #     /Users/gdb/.rbenv/versions/1.9.3-p362/lib/ruby/1.9.1/irb.rb:156:in `block in eval_input'
     #     [backtrace truncated: 7 / 17 lines]
 
-Chalk::Log provides are six log levels:
+Chalk::Log provides are five log levels:
 
-    debug, info, warn, error, ann, fatal
-
-`ann` is short for `announce`, and is intended for log messages that
-are an important part of the program's execution, but are not
-errors. That way you can turn off warnings without losing all of your
-useful output.
+    debug, info, warn, error, fatal
 
 ## Limitations
 

@@ -15,7 +15,7 @@ require 'chalk-log/version'
 #   log.debug('Now you do not!')
 # end
 module Chalk::Log
-  LEVELS = [:debug, :info, :warn, :error, :ann, :fatal]
+  LEVELS = [:debug, :info, :warn, :error, :fatal]
 
   @@chalk_logger_modules = {}
 

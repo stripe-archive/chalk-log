@@ -4,8 +4,8 @@ require 'json'
 # combined into a single logical hash.
 #
 # log.error('Something went wrong!')
-# log.ann('Booting the server on:', :host => host)
-# log.ann({:important => true}, 'Booting the server on:', :host => host)
+# log.info('Booting the server on:', :host => host)
+# log.info({:important => true}, 'Booting the server on:', :host => host)
 # log.error('Something went wrong', e)
 # log.error({:bad => false}, 'Something went wrong', e, :info => info)
 class Chalk::Log::Layout < ::Logging::Layout
@@ -143,7 +143,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     level_name = Chalk::Log::LEVELS[level]
     case level_name
-    when :debug, :info, :warn, :ann
+    when :debug, :info, :warn
       bad = false if bad.nil?
     when :error, :fatal
       bad = true if bad.nil?

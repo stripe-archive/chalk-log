@@ -14,7 +14,7 @@ module Critic::Functional
           include Chalk::Log
         end
 
-        MyClass.new.log.ann("Hi!")
+        MyClass.new.log.info("Hi!")
       end
 
       it 'the class is loggable' do
@@ -22,7 +22,7 @@ module Critic::Functional
           include Chalk::Log
         end
 
-        YourClass.log.ann("Hi!")
+        YourClass.log.info("Hi!")
       end
     end
 
@@ -132,10 +132,10 @@ module Critic::Functional
         MyLog.log.warn(msg)
       end
 
-      it 'log.ann works' do
+      it 'log.info works' do
         msg = 'msg'
-        MyLog.log.backend.expects(:ann).once
-        MyLog.log.ann(msg)
+        MyLog.log.backend.expects(:info).once
+        MyLog.log.info(msg)
       end
 
       it 'accepts blocks' do
@@ -188,7 +188,7 @@ module Critic::Functional
           extend Base1
         end
 
-        Child1.log.ann("Hello!")
+        Child1.log.info("Hello!")
         assert(true)
       end
 
@@ -205,7 +205,7 @@ module Critic::Functional
           include Middle2
         end
 
-        Child2.log.ann("Hello!")
+        Child2.log.info("Hello!")
         assert(true)
       end
 
@@ -222,7 +222,7 @@ module Critic::Functional
           extend Middle3
         end
 
-        Child3.log.ann("Hello!")
+        Child3.log.info("Hello!")
         assert(true)
       end
 
@@ -240,7 +240,7 @@ module Critic::Functional
           extend Middle4
         end
 
-        Child4.log.ann("Hello!")
+        Child4.log.info("Hello!")
         assert(true)
       end
     end
@@ -250,7 +250,7 @@ module Critic::Functional
         include Chalk::Log
       end
 
-      Base5.log.ann("Hello!")
+      Base5.log.info("Hello!")
       assert(true)
     end
   end
