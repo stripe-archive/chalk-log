@@ -1,4 +1,5 @@
 require 'logging'
+require 'chalk-log/version'
 
 # Include Chalk::Log in a class or module to make that class (and all
 # subclasses / includees) loggable.  This creates a class and instance
