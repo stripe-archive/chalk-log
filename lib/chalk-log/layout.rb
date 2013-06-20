@@ -8,7 +8,7 @@ require 'json'
 # log.ann({:important => true}, 'Booting the server on:', :host => host)
 # log.error('Something went wrong', e)
 # log.error({:bad => false}, 'Something went wrong', e, :info => info)
-module Chalk::Log::Layout < ::Logging::Layout
+class Chalk::Log::Layout < ::Logging::Layout
   def format(event)
     data = event.data
     time = event.time

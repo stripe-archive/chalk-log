@@ -1,4 +1,4 @@
-module Chalk::Log::Logger
+class Chalk::Log::Logger
   attr_reader :backend
 
   def self.init
@@ -21,7 +21,7 @@ module Chalk::Log::Logger
 
   def initialize(name)
     # Need to make sure we're inited before creating a logger.
-    Chalk::Log.send(:backend_init)
+    Chalk::Log.init
     @backend = ::Logging::Logger.new(name)
     if level = Chalk::Log::Config[:default_level]
       @backend.level = level

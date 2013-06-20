@@ -53,14 +53,17 @@ module Chalk::Log
 
   def self.init
     return if @inited
-    @inited = true
 
     ::Logging.init(*LEVELS)
-    ::Logging.raise_errors(true)
+    # We've a fork where Logging doesn't swallow errors; use that if
+    # possible.
+    ::Logging.raise_errors(true) if ::Logging.respond_to?(:raise_errors)
     ::Logging.logger.root.add_appenders(
       ::Logging.appenders.stderr(:layout => layout)
       )
     Chalk::Log::Logger.init
+
+    @inited = true
   end
 
   def self.layout
