@@ -1,6 +1,6 @@
 require File.expand_path('../_lib', __FILE__)
 
-require 'chalk-logging'
+require 'chalk-log'
 
 module Critic::Functional
   class LogTest < Test
@@ -8,7 +8,7 @@ module Critic::Functional
       Chalk::Log.init
     end
 
-    describe 'when a class has included Loggable' do
+    describe 'when a class has included Log' do
       it 'instances are loggable' do
         class MyClass
           include Chalk::Log
@@ -29,20 +29,20 @@ module Critic::Functional
     describe 'including a loggable module into another' do
       describe 'the inclusions are straightline' do
         it 'make the includee loggable' do
-          module LoggableTestA
+          module LogTestA
             include Chalk::Log
           end
 
-          module LoggableTestB
-            include LoggableTestA
+          module LogTestB
+            include LogTestA
           end
 
-          assert(LoggableTestB < Chalk::Log)
-          assert(LoggableTestB.respond_to?(:log))
+          assert(LogTestB < Chalk::Log)
+          assert(LogTestB.respond_to?(:log))
         end
 
-        it 'preserves any custom include logic prior to Loggable inclusion' do
-          module CustomLoggableTestA
+        it 'preserves any custom include logic prior to Log inclusion' do
+          module CustomLogTestA
             def self.dict=(dict)
               @dict = dict
             end
@@ -59,21 +59,21 @@ module Critic::Functional
           end
 
           dict = {}
-          CustomLoggableTestA.dict = dict
+          CustomLogTestA.dict = dict
 
-          module CustomLoggableTestB
-            include CustomLoggableTestA
+          module CustomLogTestB
+            include CustomLogTestA
           end
 
-          assert(CustomLoggableTestB < Chalk::Log)
-          assert(CustomLoggableTestB.respond_to?(:log))
+          assert(CustomLogTestB < Chalk::Log)
+          assert(CustomLogTestB.respond_to?(:log))
           assert_equal(true, dict['included'])
         end
 
         # TODO: it'd be nice if this weren't true, but I'm not sure
         # how to get a hook when a method is overriden.
-        it 'custom include logic after Loggable inclusion clobbers the default include logic' do
-          module CustomLoggableTestC
+        it 'custom include logic after Log inclusion clobbers the default include logic' do
+          module CustomLogTestC
             def self.dict=(dict)
               @dict = dict
             end
@@ -90,63 +90,63 @@ module Critic::Functional
           end
 
           dict = {}
-          CustomLoggableTestC.dict = dict
+          CustomLogTestC.dict = dict
 
-          module CustomLoggableTestD
-            include CustomLoggableTestC
+          module CustomLogTestD
+            include CustomLogTestC
           end
 
-          assert(CustomLoggableTestD < Chalk::Log)
-          assert(!CustomLoggableTestD.respond_to?(:log))
+          assert(CustomLogTestD < Chalk::Log)
+          assert(!CustomLogTestD.respond_to?(:log))
           assert_equal(true, dict['included'])
         end
       end
     end
 
-    describe 'extending a Loggable module into another' do
+    describe 'extending a Log module into another' do
       describe 'the inclusions are straightline' do
         it 'make the extendee loggable' do
-          module ExtendLoggableTestA
+          module ExtendLogTestA
             include Chalk::Log
           end
 
-          module ExtendLoggableTestB
-            extend ExtendLoggableTestA
+          module ExtendLogTestB
+            extend ExtendLogTestA
           end
 
-          assert(ExtendLoggableTestB < Chalk::Log)
-          assert(ExtendLoggableTestB.respond_to?(:log))
+          assert(ExtendLogTestB < Chalk::Log)
+          assert(ExtendLogTestB.respond_to?(:log))
         end
       end
     end
 
     describe 'when a class is loggable' do
-      class MyLoggable
+      class MyLog
         include Chalk::Log
       end
 
       it 'log.warn works' do
         msg = 'msg'
         # For some reason this isn't working:
-        MyLoggable.log.backend.expects(:warn).once
-        MyLoggable.log.warn(msg)
+        MyLog.log.backend.expects(:warn).once
+        MyLog.log.warn(msg)
       end
 
       it 'log.ann works' do
         msg = 'msg'
-        MyLoggable.log.backend.expects(:ann).once
-        MyLoggable.log.ann(msg)
+        MyLog.log.backend.expects(:ann).once
+        MyLog.log.ann(msg)
       end
 
       it 'accepts blocks' do
-        class LoggableTestE
+        class LogTestE
           include Chalk::Log
         end
-        LoggableTestE.log.level = "INFO"
+        LogTestE.log.level = "INFO"
 
-        LoggableTestE.log.debug { assert(false, "DEBUG block called when at INFO level") }
+        LogTestE.log.debug { assert(false, "DEBUG block called when at INFO level") }
         called = false
-        LoggableTestE.log.info { called = true; "" }
+        LogTestE.log.info { called = true; "" }
         assert(called, "INFO block not called at INFO level")
       end
 
@@ -157,8 +157,8 @@ module Critic::Functional
           raise "foo"
         rescue => e
         end
-        MyLoggable.log.error('message', e)
-        MyLoggable.log.error(e)
+        MyLog.log.error('message', e)
+        MyLog.log.error(e)
       end
     end
 
