@@ -17,7 +17,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
     while [nil, true, false].include?(data.last)
-      defined?(StripeContext::AssertionUtils) && StripeContext::AssertionUtils.assertion_failed("Ignoring deprecated arguments passed to logger: #{data.inspect}")
+      defined?(Chalk::Tools::AssertionUtils) && Chalk::Tools::AssertionUtils.assertion_failed("Ignoring deprecated arguments passed to logger: #{data.inspect}")
       data.pop
     end
 
