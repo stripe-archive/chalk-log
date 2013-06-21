@@ -17,12 +17,12 @@ class Chalk::Log::Layout < ::Logging::Layout
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
     while [nil, true, false].include?(data.last)
-      defined?(Chalk::Tools::AssertionUtils) && Chalk::Tools::AssertionUtils.assertion_failed("Ignoring deprecated arguments passed to logger: #{data.inspect}")
+      maybe_assert(false, "Ignoring deprecated arguments passed to logger: #{data.inspect}")
       data.pop
     end
 
     info = data.pop if data.last.kind_of?(Hash)
-    error = data.pop if data.last.kind_of?(Exception)
+    error = data.pop if exception?(data.last)
     message = data.pop if data.last.kind_of?(String)
     meta = data.pop if data.last.kind_of?(Hash)
 
@@ -34,6 +34,24 @@ class Chalk::Log::Layout < ::Logging::Layout
   end
 
   private
+
+  def maybe_assert(*args)
+    # We don't require Chalk::Tools in order to avoid a cyclic
+    # dependency.
+    Chalk::Tools::AssertionUtils.assert(*args) if defined?(Chalk::Tools)
+  end
+
+  def exception?(object)
+    if object.kind_of?(Exception)
+      true
+    elsif object.kind_of?(Mocha::Mock)
+      # TODO: better answer than this?
+      maybe_assert(Chalk::Tools::TestingUtils.testing, "Passed a mock even though we're not in the tests", true) if defined?(Chalk::Tools)
+      true
+    else
+      false
+    end
+  end
 
   def action_id; defined?(LSpace) ? LSpace[:action_id] : nil; end
   def tagging_disabled; Chalk::Log::Config[:tagging_disabled]; end
