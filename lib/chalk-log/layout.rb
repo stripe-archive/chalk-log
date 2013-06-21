@@ -44,7 +44,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   def exception?(object)
     if object.kind_of?(Exception)
       true
-    elsif object.kind_of?(Mocha::Mock)
+    elsif defined?(Mocha::Mock) && object.kind_of?(Mocha::Mock)
       # TODO: better answer than this?
       maybe_assert(Chalk::Tools::TestingUtils.testing, "Passed a mock even though we're not in the tests", true) if defined?(Chalk::Tools)
       true
