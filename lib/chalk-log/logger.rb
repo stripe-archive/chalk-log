@@ -31,7 +31,7 @@ class Chalk::Log::Logger
   private
 
   def logging_disabled?
-    ENV['STRIPE_CONTEXT_LOGGING_DISABLED'] == 'yes' ||
+    ENV['CHALK_NOLOG'] == 'yes' ||
       (defined?(LSpace) && LSpace[:logging_disabled])
   end
 end
