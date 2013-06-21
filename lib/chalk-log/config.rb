@@ -14,6 +14,9 @@ module Chalk::Log::Config
   end
 
   def self.update(config)
+    # Make sure we've init'd
+    Chalk::Log.init
+
     config = config.dup
 
     [
