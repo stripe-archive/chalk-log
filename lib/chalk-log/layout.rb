@@ -116,11 +116,13 @@ class Chalk::Log::Layout < ::Logging::Layout
     important = !indent_unimportant_loglines if important.nil?
     spacer = important ? '' : ' ' * 8
     if tag_with_success
-      subsequent_line_success_tag = '[CHALK-OK] '
-      if success
-        first_line_success_tag = subsequent_line_success_tag
-      elsif success != nil
+      if bad == false
+        first_line_success_tag = '[CHALK-OK] '
+        subsequent_line_success_tag = '[CHALK-OK] '
+      elsif bad
         first_line_success_tag = '[CHALK-BAD] '
+        # Keep this as OK because we really only need one bad line
+        subsequent_line_success_tag = '[CHALK-OK] '
       end
     end
 
