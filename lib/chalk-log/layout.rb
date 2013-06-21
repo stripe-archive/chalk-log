@@ -29,6 +29,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
     message = build_message(message, error, info)
+    append_newline(message)
     add_tags(message, time, level, meta)
   end
 
@@ -46,6 +47,10 @@ class Chalk::Log::Layout < ::Logging::Layout
     message = stringify_info(info, message) if info
     message = stringify_error(error, message) if error
     message || ''
+  end
+
+  def append_newline(message)
+    message << "\n"
   end
 
   def stringify_info(info, message=nil)
