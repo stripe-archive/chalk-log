@@ -16,7 +16,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
-    while [nil, true, false].include?(data.last)
+    while data.length > 2 && [nil, true, false].include?(data.last)
       maybe_assert(false, "Ignoring deprecated arguments passed to logger: #{data.inspect}")
       data.pop
     end
