@@ -1,4 +1,7 @@
 require 'json'
+require 'time'
+
+RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'important', 'bad', 'pid', 'error', 'backtrace', 'error_class'].to_set
 
 # Pass metadata options as a leading hash. Everything else is
 # combined into a single logical hash.
@@ -28,9 +31,32 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
-    message = build_message(message, error, info)
-    append_newline(message)
-    add_tags(message, time, level, meta)
+    id, important, bad = interpret_meta(level, meta)
+    pid = Process.pid
+
+    log_hash = {
+      :time => timestamp_prefix(time),
+      :message => message,
+      :error => error,
+      :info => info,
+      :level => level,
+      :meta => meta,
+      :id => id,
+      :important => important,
+      :bad => bad,
+      :pid => pid
+    }.reject {|k,v| v.nil?}
+
+    case output_format
+    when 'json'
+      json_print(log_hash)
+    when 'kv'
+      kv_print(log_hash)
+    when 'pp'
+      pretty_print(log_hash)
+    else
+      raise ArgumentError, "Chalk::Log::Config[:output_format] was not set to a valid setting of 'json', 'kv', or 'pp'."
+    end
   end
 
   private
@@ -55,6 +81,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def action_id; defined?(LSpace) ? LSpace[:action_id] : nil; end
   def tagging_disabled; Chalk::Log::Config[:tagging_disabled]; end
+  def output_format; Chalk::Log::Config[:output]; end
   def tag_with_success; Chalk::Log::Config[:tag_with_success]; end
   def tag_without_pid; Chalk::Log::Config[:tag_without_pid]; end
   def tag_with_timestamp; Chalk::Log::Config[:tag_with_timestamp]; end
@@ -90,7 +117,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   # Probably let other types be logged over time, but for now we
   # should make sure that we will can serialize whatever's thrown at
   # us.
-  def display(key, value)
+  def display(key, value, escape_keys=false)
     begin
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
@@ -99,9 +126,17 @@ class Chalk::Log::Layout < ::Logging::Layout
       e.message << " (while generating display for #{key})"
       raise
     end
-    value = dumped[1...-1]
+    if dumped =~ /\A\["[A-Z][a-zA-Z]*"\]\z/
+      value = dumped[2...-2]
+    else
+      value = dumped[1...-1]
+    end
 
-    "#{key}=#{value}"
+    if escape_keys && (key.to_s.start_with?('_') || RESERVED_KEYS.include?(key.to_s))
+      "_#{key}=#{value}"
+    else
+      "#{key}=#{value}"
+    end
   end
 
   def stringify_error(error, message=nil)
@@ -118,26 +153,70 @@ class Chalk::Log::Layout < ::Logging::Layout
     message
   end
 
-  def add_tags(message, time, level, meta)
-    return message if tagging_disabled
-    id, important, bad = interpret_meta(level, meta)
+  def kv_print(log_hash)
+    if log_hash[:error]
+      error_hash = {
+        :error => log_hash[:error].to_s,
+        :error_class => log_hash[:error].class.to_s
+      }
+      backtrace = log_hash[:error].backtrace || ['(no backtrace)']
+      backtrace_hash = {:backtrace => "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}\n"}
+    else
+      error_hash = {}
+      backtrace_hash = {}
+    end
+    top_level_hash = log_hash.reject {|k,v| [:info, :error].include?(k)}
+
+    info = log_hash[:info] || {}
+
+    n = (
+      top_level_hash.map {|k,v| display(k,v)} +
+      info.map {|k,v| display(k,v, true)} +
+      error_hash.map {|k,v| display(k,v)} +
+      backtrace_hash.map {|k,v| display(k,v).gsub('\n', "\n  ")}
+    ).join(' ') + "\n"
+    n
+  end
+
+  def hash_to_flat_key_value_pairs(item, exclude_keys=[], prefix=[])
+    case item
+    when Hash
+      keys = item.keys.reject {|k| exclude_keys.include?(k)}
+      keys.map {|k| hash_to_flat_key_value_pairs(item[k], [], prefix + [k.to_s])}.flatten(1)
+    when Array
+      item.map.with_index {|v,k| hash_to_flat_key_value_pairs(v, prefix + [k.to_s])}.flatten(1)
+    when nil
+      []
+    else
+      [[prefix.join('_'), item]]
+    end
+  end
+
+  def json_print(log_hash)
+    JSON.generate(log_hash) + "\n"
+  end
+
+  def pretty_print(log_hash)
+    log_hash[:message] = build_message(log_hash[:message], log_hash[:error], log_hash[:info])
+    append_newline(log_hash[:message])
+    return log_hash[:message] if tagging_disabled
 
     tags = []
-    tags << Process.pid unless tag_without_pid
-    tags << id if id
+    tags << log_hash[:pid] unless tag_without_pid
+    tags << log_hash[:id] if log_hash[:id]
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
     else
       prefix = ''
     end
-    prefix = "#{timestamp_prefix(time)}#{prefix}" if tag_with_timestamp
-    important = !indent_unimportant_loglines if important.nil?
-    spacer = important ? '' : ' ' * 8
+    prefix = "[#{log_hash[:time]}] #{prefix}" if tag_with_timestamp
+    log_hash[:important] = !indent_unimportant_loglines if log_hash[:important].nil?
+    spacer = log_hash[:important] ? '' : ' ' * 8
     if tag_with_success
-      if bad == false
+      if log_hash[:bad] == false
         first_line_success_tag = '[CHALK-OK] '
         subsequent_line_success_tag = '[CHALK-OK] '
-      elsif bad
+      elsif log_hash[:bad]
         first_line_success_tag = '[CHALK-BAD] '
         # Keep this as OK because we really only need one bad line
         subsequent_line_success_tag = '[CHALK-OK] '
@@ -145,7 +224,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     end
 
     out = ''
-    message.split("\n").each_with_index do |line, i|
+    log_hash[:message].split("\n").each_with_index do |line, i|
       out << prefix
       if i == 0
         out << first_line_success_tag.to_s
@@ -182,6 +261,6 @@ class Chalk::Log::Layout < ::Logging::Layout
   def timestamp_prefix(now)
     now_fmt = now.strftime("%Y-%m-%d %H:%M:%S")
     ms_fmt = sprintf("%06d", now.usec)
-    "[#{now_fmt}.#{ms_fmt}] "
+    "#{now_fmt}.#{ms_fmt}"
   end
 end
