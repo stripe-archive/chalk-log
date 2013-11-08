@@ -259,4 +259,35 @@ module Critic::Functional
       assert(true)
     end
   end
+  describe 'generates a pretty_print' do
+    class PrettyPrintLogger
+      include Chalk::Log
+    end
+
+    layout = PrettyPrintLogger::Layout.new
+
+    it 'log entry from info' do
+      event = stub(:data => ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 1)
+      Process.stubs(:pid).returns(9973)
+      assert_equal(layout.format(event), '[1979-04-09 00:00:00.000000] [9973] A Message: key1="ValueOne" key2=["An","Array"]' + "\n")
+    end
+
+    it 'log entry from error without a backtrace' do
+      event = stub(:data => ["Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
+      Process.stubs(:pid).returns(9973)
+      assert_equal(layout.format(event), '[1979-04-09 00:00:00.000000] [9973] Another Message: StandardError (StandardError)' +
+        "\n" + '[1979-04-09 00:00:00.000000] [9973]   (no backtrace)' + "\n")
+    end
+
+    it 'log entry from error with a backtrace' do
+      error = StandardError.new
+      backtrace = ["a fake", "backtrace"]
+      error.set_backtrace(backtrace)
+      event = stub(:data => ["Yet Another Message", error], :time => Time.new(1979,4,9), :level => 3)
+      Process.stubs(:pid).returns(9973)
+      assert_equal(layout.format(event), '[1979-04-09 00:00:00.000000] [9973] Yet Another Message: StandardError (StandardError)' +
+        "\n" + '[1979-04-09 00:00:00.000000] [9973]   a fake' +
+        "\n" + '[1979-04-09 00:00:00.000000] [9973]   backtrace' + "\n")
+    end
+  end
 end

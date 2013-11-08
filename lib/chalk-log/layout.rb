@@ -123,7 +123,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     id, important, bad = interpret_meta(level, meta)
 
     tags = []
-    tags << $$ unless tag_without_pid
+    tags << Process.pid unless tag_without_pid
     tags << id if id
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
