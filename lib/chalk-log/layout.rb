@@ -126,6 +126,8 @@ class Chalk::Log::Layout < ::Logging::Layout
       e.message << " (while generating display for #{key})"
       raise
     end
+    # If the dumped json is a quoted string that contains only letters and begins with
+    # a capital letter then the quotes a dropped for readability.
     if dumped =~ /\A\["[A-Z][a-zA-Z]*"\]\z/
       value = dumped[2...-2]
     else
