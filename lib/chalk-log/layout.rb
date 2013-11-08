@@ -134,7 +134,8 @@ class Chalk::Log::Layout < ::Logging::Layout
       value = dumped[1...-1]
     end
 
-    if escape_keys && (key.to_s.start_with?('_') || RESERVED_KEYS.include?(key.to_s))
+    key = key.to_s
+    if escape_keys && (key.start_with?('_') || RESERVED_KEYS.include?(key))
       "_#{key}=#{value}"
     else
       "#{key}=#{value}"
