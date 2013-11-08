@@ -24,6 +24,7 @@ module Chalk::Log::Config
       :indent_unimportant_loglines,
       :default_outputters,
       :default_level,
+      :output,
       :tag_with_success,
       :tag_without_pid,
       :tag_with_timestamp,
