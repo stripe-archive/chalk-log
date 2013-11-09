@@ -81,7 +81,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def action_id; defined?(LSpace) ? LSpace[:action_id] : nil; end
   def tagging_disabled; Chalk::Log::Config[:tagging_disabled]; end
-  def output_format; Chalk::Log::Config[:output]; end
+  def output_format; Chalk::Log::Config[:output_format]; end
   def tag_with_success; Chalk::Log::Config[:tag_with_success]; end
   def tag_without_pid; Chalk::Log::Config[:tag_without_pid]; end
   def tag_with_timestamp; Chalk::Log::Config[:tag_with_timestamp]; end
@@ -126,13 +126,12 @@ class Chalk::Log::Layout < ::Logging::Layout
       e.message << " (while generating display for #{key})"
       raise
     end
-    if dumped =~ /\A\["[A-Z][a-zA-Z]*"\]\z/
-      value = dumped[2...-2]
-    else
-      value = dumped[1...-1]
-    end
 
-    if escape_keys && (key.to_s.start_with?('_') || RESERVED_KEYS.include?(key.to_s))
+    value = dumped[1...-1] # strip off surrounding brackets
+    value = value[1...-1] if value =~ /\A"[A-Z]\w*"\z/ # non-numeric simple strings that start with a capital don't need quotes
+
+    key = key.to_s
+    if escape_keys && (key.start_with?('_') || RESERVED_KEYS.include?(key))
       "_#{key}=#{value}"
     else
       "#{key}=#{value}"
@@ -176,20 +175,6 @@ class Chalk::Log::Layout < ::Logging::Layout
       backtrace_hash.map {|k,v| display(k,v).gsub('\n', "\n  ")}
     ).join(' ') + "\n"
     n
-  end
-
-  def hash_to_flat_key_value_pairs(item, exclude_keys=[], prefix=[])
-    case item
-    when Hash
-      keys = item.keys.reject {|k| exclude_keys.include?(k)}
-      keys.map {|k| hash_to_flat_key_value_pairs(item[k], [], prefix + [k.to_s])}.flatten(1)
-    when Array
-      item.map.with_index {|v,k| hash_to_flat_key_value_pairs(v, prefix + [k.to_s])}.flatten(1)
-    when nil
-      []
-    else
-      [[prefix.join('_'), item]]
-    end
   end
 
   def json_print(log_hash)
