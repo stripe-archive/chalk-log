@@ -321,9 +321,9 @@ module Critic::Functional
         event = stub(:data => ["Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
         Process.stubs(:pid).returns(9973)
         layout.stubs(:output_format).returns('kv')
-        assert_equal('time="1979-04-09 00:00:00.000000" message="Another Message" level=3 bad=true pid=9973 error=StandardError error_class=StandardError backtrace="' +
-          "\n" + '  (no backtrace)' +
-          "\n" + '  "' + "\n",
+        assert_equal('time="1979-04-09 00:00:00.000000" message="Another Message" level=3 bad=true pid=9973 error=StandardError error_class=StandardError backtrace=' +
+          "\n" + '  "(no backtrace)"' +
+          "\n",
           layout.format(event)
         )
       end
@@ -335,10 +335,10 @@ module Critic::Functional
         event = stub(:data => ["Yet Another Message", error], :time => Time.new(1979,4,9), :level => 3)
         Process.stubs(:pid).returns(9973)
         layout.stubs(:output_format).returns('kv')
-        assert_equal('time="1979-04-09 00:00:00.000000" message="Yet Another Message" level=3 bad=true pid=9973 error=StandardError error_class=StandardError backtrace="' +
-          "\n" + '  a fake' +
-          "\n" + '    backtrace' +
-          "\n" + '  "' + "\n",
+        assert_equal('time="1979-04-09 00:00:00.000000" message="Yet Another Message" level=3 bad=true pid=9973 error=StandardError error_class=StandardError backtrace=' +
+          "\n" + '  "a fake' +
+          "\n" + '    backtrace"' +
+          "\n",
           layout.format(event)
         )
       end

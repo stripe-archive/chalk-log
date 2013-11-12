@@ -118,6 +118,22 @@ class Chalk::Log::Layout < ::Logging::Layout
   # should make sure that we will can serialize whatever's thrown at
   # us.
   def display(key, value, escape_keys=false)
+    key = display_key(key, escape_keys)
+    value = display_value(value)
+
+    "#{key}=#{value}"
+  end
+
+  def display_key(key, escape_keys)
+    key = key.to_s
+    if escape_keys && (key.start_with?('_') || RESERVED_KEYS.include?(key))
+      "_#{key}"
+    else
+      key
+    end
+  end
+
+  def display_value(value)
     begin
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
@@ -130,12 +146,17 @@ class Chalk::Log::Layout < ::Logging::Layout
     value = dumped[1...-1] # strip off surrounding brackets
     value = value[1...-1] if value =~ /\A"[A-Z]\w*"\z/ # non-numeric simple strings that start with a capital don't need quotes
 
-    key = key.to_s
-    if escape_keys && (key.start_with?('_') || RESERVED_KEYS.include?(key))
-      "_#{key}=#{value}"
-    else
-      "#{key}=#{value}"
-    end
+    value
+  end
+
+  def multilined_display(key, value, escape_keys=false)
+    # substitute escaped by JSON new lines with actual new lines
+    key = display_key(key, escape_keys)
+    value = display_value(value)
+
+    value = "\n  " + value.gsub(/([^\\]\\{2}*)\\n/, "\\1\n  ")
+
+    "#{key}=#{value}"
   end
 
   def stringify_error(error, message=nil)
@@ -159,7 +180,7 @@ class Chalk::Log::Layout < ::Logging::Layout
         :error_class => log_hash[:error].class.to_s
       }
       backtrace = log_hash[:error].backtrace || ['(no backtrace)']
-      backtrace_hash = {:backtrace => "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}\n"}
+      backtrace_hash = {:backtrace => Chalk::Log::Utils.format_backtrace(backtrace)}
     else
       error_hash = {}
       backtrace_hash = {}
@@ -172,7 +193,7 @@ class Chalk::Log::Layout < ::Logging::Layout
       top_level_hash.map {|k,v| display(k,v)} +
       info.map {|k,v| display(k,v, true)} +
       error_hash.map {|k,v| display(k,v)} +
-      backtrace_hash.map {|k,v| display(k,v).gsub('\n', "\n  ")}
+      backtrace_hash.map {|k,v| multilined_display(k,v,false)}
     ).join(' ') + "\n"
     n
   end
