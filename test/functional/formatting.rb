@@ -8,6 +8,16 @@ module Critic::Functional
       Chalk::Log.init
     end
 
+    class MyClass
+      include Chalk::Log
+    end
+
+    describe 'when called without arguments' do
+      it 'does not loop infinitely' do
+        MyClass.log.info
+      end
+    end
+
     describe 'generates a pretty_print' do
       class PrettyPrintLogger
         include Chalk::Log
