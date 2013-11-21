@@ -176,8 +176,10 @@ class Chalk::Log::Layout < ::Logging::Layout
   def kv_print(log_hash)
     user_attributes = log_hash.delete(:info) || {}
     error = log_hash.delete(:error)
+    time = log_hash.delete(:time)
 
-    components = log_hash.map {|key, value| display(key, value)} +
+    components = ["[#{time}]"] +
+      log_hash.map {|key, value| display(key, value)} +
       user_attributes.map {|key, value| display(key, value, true)}
 
     if error
