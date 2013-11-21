@@ -178,9 +178,10 @@ class Chalk::Log::Layout < ::Logging::Layout
     error = log_hash.delete(:error)
     time = log_hash.delete(:time)
 
-    components = ["[#{time}]"] +
-      log_hash.map {|key, value| display(key, value)} +
-      user_attributes.map {|key, value| display(key, value, true)}
+    components = []
+    components << "[#{time}]" if time
+    components += log_hash.map {|key, value| display(key, value)}
+    components += user_attributes.map {|key, value| display(key, value, true)}
 
     if error
       components << display(:error, error.to_s)
