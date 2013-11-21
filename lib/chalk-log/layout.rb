@@ -36,15 +36,15 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     log_hash = {
       :time => timestamp_prefix(time),
-      :message => message,
-      :error => error,
-      :info => info,
-      :level => level,
-      :meta => meta,
+      :pid => pid,
+      :level => Chalk::Log::LEVELS[level],
       :id => id,
+      :message => message,
+      :meta => meta,
       :important => important,
       :bad => bad,
-      :pid => pid
+      :error => error,
+      :info => info
     }.reject {|k,v| v.nil?}
 
     case output_format
@@ -174,28 +174,19 @@ class Chalk::Log::Layout < ::Logging::Layout
   end
 
   def kv_print(log_hash)
-    if log_hash[:error]
-      error_hash = {
-        :error => log_hash[:error].to_s,
-        :error_class => log_hash[:error].class.to_s
-      }
-      backtrace = log_hash[:error].backtrace || ['(no backtrace)']
-      backtrace_hash = {:backtrace => Chalk::Log::Utils.format_backtrace(backtrace)}
-    else
-      error_hash = {}
-      backtrace_hash = {}
+    user_attributes = log_hash.delete(:info) || {}
+    error = log_hash.delete(:error)
+
+    components = log_hash.map {|key, value| display(key, value)} +
+      user_attributes.map {|key, value| display(key, value, true)}
+
+    if error
+      components << display(:error, error.to_s)
+      components << display(:error_class, error.class.to_s)
+      components << "backtrace=\n  #{Chalk::Log::Utils.format_backtrace(error.backtrace)}" if error.backtrace
     end
-    top_level_hash = log_hash.reject {|k,v| [:info, :error].include?(k)}
 
-    info = log_hash[:info] || {}
-
-    n = (
-      top_level_hash.map {|k,v| display(k,v)} +
-      info.map {|k,v| display(k,v, true)} +
-      error_hash.map {|k,v| display(k,v)} +
-      backtrace_hash.map {|k,v| multilined_display(k,v,false)}
-    ).join(' ') + "\n"
-    n
+    components.join(' ') + "\n"
   end
 
   def json_print(log_hash)

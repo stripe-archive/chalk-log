@@ -2,7 +2,8 @@ module Chalk::Log::Config
   @config = {
     :backtrace_depth => 7,
     :tag_with_timestamp => STDOUT.tty?,
-    :default_level => 'INFO'
+    :default_level => 'INFO',
+    :output_format => 'kv'
   }
 
   def self.[](opt)
