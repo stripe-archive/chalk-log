@@ -179,7 +179,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     time = log_hash.delete(:time)
 
     components = []
-    components << "[#{time}]" if time
+    components << "[#{time}]" if tag_with_timestamp
     components += log_hash.map {|key, value| display(key, value)}
     components += user_attributes.map {|key, value| display(key, value, true)}
 
