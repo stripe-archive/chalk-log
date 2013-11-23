@@ -1,16 +1,15 @@
 require 'json'
 require 'time'
 
-RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'important', 'bad', 'pid', 'error', 'backtrace', 'error_class'].to_set
+RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'pid', 'error', 'backtrace', 'error_class'].to_set
 
 # Pass metadata options as a leading hash. Everything else is
 # combined into a single logical hash.
 #
 # log.error('Something went wrong!')
 # log.info('Booting the server on:', :host => host)
-# log.info({:important => true}, 'Booting the server on:', :host => host)
 # log.error('Something went wrong', e)
-# log.error({:bad => false}, 'Something went wrong', e, :info => info)
+# log.error({:id => 'id'}, 'Something went wrong', e, :info => info)
 class Chalk::Log::Layout < ::Logging::Layout
   def format(event)
     data = event.data
@@ -31,7 +30,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
-    id, important, bad = interpret_meta(level, meta)
+    id = interpret_meta(level, meta)
     pid = Process.pid
 
     log_hash = {
@@ -41,8 +40,6 @@ class Chalk::Log::Layout < ::Logging::Layout
       :id => id,
       :message => message,
       :meta => meta,
-      :important => important,
-      :bad => bad,
       :error => error,
       :info => info
     }.reject {|k,v| v.nil?}
@@ -82,10 +79,8 @@ class Chalk::Log::Layout < ::Logging::Layout
   def action_id; defined?(LSpace) ? LSpace[:action_id] : nil; end
   def tagging_disabled; Chalk::Log::Config[:tagging_disabled]; end
   def output_format; Chalk::Log::Config[:output_format]; end
-  def tag_with_success; Chalk::Log::Config[:tag_with_success]; end
   def tag_without_pid; Chalk::Log::Config[:tag_without_pid]; end
   def tag_with_timestamp; Chalk::Log::Config[:tag_with_timestamp]; end
-  def indent_unimportant_loglines; Chalk::Log::Config[:indent_unimportant_loglines]; end
 
 
   def build_message(message, error, info)
@@ -210,18 +205,6 @@ class Chalk::Log::Layout < ::Logging::Layout
       prefix = ''
     end
     prefix = "[#{log_hash[:time]}] #{prefix}" if tag_with_timestamp
-    log_hash[:important] = !indent_unimportant_loglines if log_hash[:important].nil?
-    spacer = log_hash[:important] ? '' : ' ' * 8
-    if tag_with_success
-      if log_hash[:bad] == false
-        first_line_success_tag = '[CHALK-OK] '
-        subsequent_line_success_tag = '[CHALK-OK] '
-      elsif log_hash[:bad]
-        first_line_success_tag = '[CHALK-BAD] '
-        # Keep this as OK because we really only need one bad line
-        subsequent_line_success_tag = '[CHALK-OK] '
-      end
-    end
 
     out = ''
     log_hash[:message].split("\n").each_with_index do |line, i|
@@ -239,23 +222,11 @@ class Chalk::Log::Layout < ::Logging::Layout
   def interpret_meta(level, meta)
     if meta
       id = meta[:id]
-      important = meta[:important]
-      bad = meta[:bad]
     end
 
     id ||= action_id
 
-    level_name = Chalk::Log::LEVELS[level]
-    case level_name
-    when :debug, :info, :warn
-      bad = false if bad.nil?
-    when :error, :fatal
-      bad = true if bad.nil?
-    else
-      raise "Unrecognized level name: #{level_name.inspect} (level: #{level.inspect})"
-    end
-
-    [id, important, bad]
+    id
   end
 
   def timestamp_prefix(now)
