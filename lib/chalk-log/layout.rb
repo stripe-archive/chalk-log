@@ -144,16 +144,6 @@ class Chalk::Log::Layout < ::Logging::Layout
     value
   end
 
-  def multilined_display(key, value, escape_keys=false)
-    # substitute escaped by JSON new lines with actual new lines
-    key = display_key(key, escape_keys)
-    value = display_value(value)
-
-    value = "\n  " + value.gsub(/([^\\]\\{2}*)\\n/, "\\1\n  ")
-
-    "#{key}=#{value}"
-  end
-
   def stringify_error(error, message=nil)
     if message
       message << ': '
