@@ -1,4 +1,5 @@
 require 'json'
+require 'set'
 require 'time'
 
 RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'pid', 'error', 'backtrace', 'error_class'].to_set
