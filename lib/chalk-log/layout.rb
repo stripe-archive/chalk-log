@@ -199,13 +199,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     out = ''
     log_hash[:message].split("\n").each_with_index do |line, i|
-      out << prefix
-      if i == 0
-        out << first_line_success_tag.to_s
-      else
-        out << subsequent_line_success_tag.to_s
-      end
-      out << spacer << line << "\n"
+      out << prefix << spacer << line << "\n"
     end
     out
   end
