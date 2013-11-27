@@ -199,7 +199,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     out = ''
     event_description[:message].split("\n").each_with_index do |line, i|
-      out << prefix << spacer << line << "\n"
+      out << prefix << line << "\n"
     end
     out
   end
