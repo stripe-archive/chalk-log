@@ -2,16 +2,15 @@ require 'json'
 require 'set'
 require 'time'
 
-RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'important', 'bad', 'pid', 'error', 'backtrace', 'error_class'].to_set
+RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'pid', 'error', 'backtrace', 'error_class'].to_set
 
 # Pass metadata options as a leading hash. Everything else is
 # combined into a single logical hash.
 #
 # log.error('Something went wrong!')
 # log.info('Booting the server on:', :host => host)
-# log.info({:important => true}, 'Booting the server on:', :host => host)
 # log.error('Something went wrong', e)
-# log.error({:bad => false}, 'Something went wrong', e, :info => info)
+# log.error({:id => 'id'}, 'Something went wrong', e, :info => info)
 class Chalk::Log::Layout < ::Logging::Layout
   def format(event)
     data = event.data
@@ -32,29 +31,27 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
-    id, important, bad = interpret_meta(level, meta)
+    id = interpret_meta(level, meta)
     pid = Process.pid
 
-    log_hash = {
+    event_description = {
       :time => timestamp_prefix(time),
       :pid => pid,
       :level => Chalk::Log::LEVELS[level],
       :id => id,
       :message => message,
       :meta => meta,
-      :important => important,
-      :bad => bad,
       :error => error,
       :info => info
     }.reject {|k,v| v.nil?}
 
     case output_format
     when 'json'
-      json_print(log_hash)
+      json_print(event_description)
     when 'kv'
-      kv_print(log_hash)
+      kv_print(event_description)
     when 'pp'
-      pretty_print(log_hash)
+      pretty_print(event_description)
     else
       raise ArgumentError, "Chalk::Log::Config[:output_format] was not set to a valid setting of 'json', 'kv', or 'pp'."
     end
@@ -83,10 +80,8 @@ class Chalk::Log::Layout < ::Logging::Layout
   def action_id; defined?(LSpace) ? LSpace[:action_id] : nil; end
   def tagging_disabled; Chalk::Log::Config[:tagging_disabled]; end
   def output_format; Chalk::Log::Config[:output_format]; end
-  def tag_with_success; Chalk::Log::Config[:tag_with_success]; end
   def tag_without_pid; Chalk::Log::Config[:tag_without_pid]; end
   def tag_with_timestamp; Chalk::Log::Config[:tag_with_timestamp]; end
-  def indent_unimportant_loglines; Chalk::Log::Config[:indent_unimportant_loglines]; end
 
 
   def build_message(message, error, info)
@@ -150,16 +145,6 @@ class Chalk::Log::Layout < ::Logging::Layout
     value
   end
 
-  def multilined_display(key, value, escape_keys=false)
-    # substitute escaped by JSON new lines with actual new lines
-    key = display_key(key, escape_keys)
-    value = display_value(value)
-
-    value = "\n  " + value.gsub(/([^\\]\\{2}*)\\n/, "\\1\n  ")
-
-    "#{key}=#{value}"
-  end
-
   def stringify_error(error, message=nil)
     if message
       message << ': '
@@ -174,12 +159,15 @@ class Chalk::Log::Layout < ::Logging::Layout
     message
   end
 
-  def kv_print(log_hash)
-    user_attributes = log_hash.delete(:info) || {}
-    error = log_hash.delete(:error)
+  def kv_print(event_description)
+    user_attributes = event_description.delete(:info) || {}
+    error = event_description.delete(:error)
+    time = event_description.delete(:time)
 
-    components = log_hash.map {|key, value| display(key, value)} +
-      user_attributes.map {|key, value| display(key, value, true)}
+    components = []
+    components << "[#{time}]" if tag_with_timestamp
+    components += event_description.map {|key, value| display(key, value)}
+    components += user_attributes.map {|key, value| display(key, value, true)}
 
     if error
       components << display(:error, error.to_s)
@@ -190,46 +178,28 @@ class Chalk::Log::Layout < ::Logging::Layout
     components.join(' ') + "\n"
   end
 
-  def json_print(log_hash)
-    JSON.generate(log_hash) + "\n"
+  def json_print(event_description)
+    JSON.generate(event_description) + "\n"
   end
 
-  def pretty_print(log_hash)
-    log_hash[:message] = build_message(log_hash[:message], log_hash[:error], log_hash[:info])
-    append_newline(log_hash[:message])
-    return log_hash[:message] if tagging_disabled
+  def pretty_print(event_description)
+    event_description[:message] = build_message(event_description[:message], event_description[:error], event_description[:info])
+    append_newline(event_description[:message])
+    return event_description[:message] if tagging_disabled
 
     tags = []
-    tags << log_hash[:pid] unless tag_without_pid
-    tags << log_hash[:id] if log_hash[:id]
+    tags << event_description[:pid] unless tag_without_pid
+    tags << event_description[:id] if event_description[:id]
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
     else
       prefix = ''
     end
-    prefix = "[#{log_hash[:time]}] #{prefix}" if tag_with_timestamp
-    log_hash[:important] = !indent_unimportant_loglines if log_hash[:important].nil?
-    spacer = log_hash[:important] ? '' : ' ' * 8
-    if tag_with_success
-      if log_hash[:bad] == false
-        first_line_success_tag = '[CHALK-OK] '
-        subsequent_line_success_tag = '[CHALK-OK] '
-      elsif log_hash[:bad]
-        first_line_success_tag = '[CHALK-BAD] '
-        # Keep this as OK because we really only need one bad line
-        subsequent_line_success_tag = '[CHALK-OK] '
-      end
-    end
+    prefix = "[#{event_description[:time]}] #{prefix}" if tag_with_timestamp
 
     out = ''
-    log_hash[:message].split("\n").each_with_index do |line, i|
-      out << prefix
-      if i == 0
-        out << first_line_success_tag.to_s
-      else
-        out << subsequent_line_success_tag.to_s
-      end
-      out << spacer << line << "\n"
+    event_description[:message].split("\n").each_with_index do |line, i|
+      out << prefix << line << "\n"
     end
     out
   end
@@ -237,23 +207,11 @@ class Chalk::Log::Layout < ::Logging::Layout
   def interpret_meta(level, meta)
     if meta
       id = meta[:id]
-      important = meta[:important]
-      bad = meta[:bad]
     end
 
     id ||= action_id
 
-    level_name = Chalk::Log::LEVELS[level]
-    case level_name
-    when :debug, :info, :warn
-      bad = false if bad.nil?
-    when :error, :fatal
-      bad = true if bad.nil?
-    else
-      raise "Unrecognized level name: #{level_name.inspect} (level: #{level.inspect})"
-    end
-
-    [id, important, bad]
+    id
   end
 
   def timestamp_prefix(now)

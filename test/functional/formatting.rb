@@ -73,7 +73,7 @@ module Critic::Functional
 
       it 'log entry from info' do
         event = stub(:data => ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 1)
-        assert_equal("time=\"1979-04-09 00:00:00.000000\" pid=9973 level=\"info\" message=\"A Message\" bad=false key1=ValueOne key2=[\"An\",\"Array\"]
+        assert_equal("[1979-04-09 00:00:00.000000] pid=9973 level=\"info\" message=\"A Message\" key1=ValueOne key2=[\"An\",\"Array\"]
 ",
           layout.format(event)
         )
@@ -81,7 +81,7 @@ module Critic::Functional
 
       it 'log entry from error without a backtrace' do
         event = stub(:data => ["Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
-        assert_equal("time=\"1979-04-09 00:00:00.000000\" pid=9973 level=\"error\" message=\"Another Message\" bad=true error=StandardError error_class=StandardError
+        assert_equal("[1979-04-09 00:00:00.000000] pid=9973 level=\"error\" message=\"Another Message\" error=StandardError error_class=StandardError
 ",
           layout.format(event)
         )
@@ -92,7 +92,7 @@ module Critic::Functional
         backtrace = ["a fake", "backtrace"]
         error.set_backtrace(backtrace)
         event = stub(:data => ["Yet Another Message", error], :time => Time.new(1979,4,9), :level => 3)
-        assert_equal("time=\"1979-04-09 00:00:00.000000\" pid=9973 level=\"error\" message=\"Yet Another Message\" bad=true error=StandardError error_class=StandardError backtrace=
+        assert_equal("[1979-04-09 00:00:00.000000] pid=9973 level=\"error\" message=\"Yet Another Message\" error=StandardError error_class=StandardError backtrace=
   a fake
   backtrace
 ",
@@ -113,7 +113,7 @@ module Critic::Functional
 
       it 'log entry from info' do
         event = stub(:data => ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 1)
-        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"info\",\"message\":\"A Message\",\"bad\":false,\"info\":{\"key1\":\"ValueOne\",\"key2\":[\"An\",\"Array\"]}}
+        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"info\",\"message\":\"A Message\",\"info\":{\"key1\":\"ValueOne\",\"key2\":[\"An\",\"Array\"]}}
 ",
           layout.format(event)
         )
@@ -121,7 +121,7 @@ module Critic::Functional
 
       it 'log entry from error without a backtrace' do
         event = stub(:data => ["Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
-        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"error\",\"message\":\"Another Message\",\"bad\":true,\"error\":\"StandardError\"}
+        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"error\",\"message\":\"Another Message\",\"error\":\"StandardError\"}
 ",
           layout.format(event)
         )
@@ -132,7 +132,7 @@ module Critic::Functional
         backtrace = ["a fake", "backtrace"]
         error.set_backtrace(backtrace)
         event = stub(:data => ["Yet Another Message", error], :time => Time.new(1979,4,9), :level => 3)
-        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"error\",\"message\":\"Yet Another Message\",\"bad\":true,\"error\":\"StandardError\"}
+        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"pid\":9973,\"level\":\"error\",\"message\":\"Yet Another Message\",\"error\":\"StandardError\"}
 ",
           layout.format(event)
         )
