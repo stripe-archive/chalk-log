@@ -166,8 +166,8 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     components = []
     components << "[#{time}]" if tag_with_timestamp
-    components += event_description.map {|key, value| display(key, value)}
-    components += user_attributes.map {|key, value| display(key, value, true)}
+    event_description.each {|key, value| components << display(key, value)}
+    user_attributes.each {|key, value| components << display(key, value, true)}
 
     if error
       components << display(:error, error.to_s)
