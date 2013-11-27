@@ -34,7 +34,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     id = interpret_meta(level, meta)
     pid = Process.pid
 
-    log_hash = {
+    event_description = {
       :time => timestamp_prefix(time),
       :pid => pid,
       :level => Chalk::Log::LEVELS[level],
@@ -47,11 +47,11 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     case output_format
     when 'json'
-      json_print(log_hash)
+      json_print(event_description)
     when 'kv'
-      kv_print(log_hash)
+      kv_print(event_description)
     when 'pp'
-      pretty_print(log_hash)
+      pretty_print(event_description)
     else
       raise ArgumentError, "Chalk::Log::Config[:output_format] was not set to a valid setting of 'json', 'kv', or 'pp'."
     end
@@ -159,14 +159,14 @@ class Chalk::Log::Layout < ::Logging::Layout
     message
   end
 
-  def kv_print(log_hash)
-    user_attributes = log_hash.delete(:info) || {}
-    error = log_hash.delete(:error)
-    time = log_hash.delete(:time)
+  def kv_print(event_description)
+    user_attributes = event_description.delete(:info) || {}
+    error = event_description.delete(:error)
+    time = event_description.delete(:time)
 
     components = []
     components << "[#{time}]" if tag_with_timestamp
-    components += log_hash.map {|key, value| display(key, value)}
+    components += event_description.map {|key, value| display(key, value)}
     components += user_attributes.map {|key, value| display(key, value, true)}
 
     if error
@@ -178,27 +178,27 @@ class Chalk::Log::Layout < ::Logging::Layout
     components.join(' ') + "\n"
   end
 
-  def json_print(log_hash)
-    JSON.generate(log_hash) + "\n"
+  def json_print(event_description)
+    JSON.generate(event_description) + "\n"
   end
 
-  def pretty_print(log_hash)
-    log_hash[:message] = build_message(log_hash[:message], log_hash[:error], log_hash[:info])
-    append_newline(log_hash[:message])
-    return log_hash[:message] if tagging_disabled
+  def pretty_print(event_description)
+    event_description[:message] = build_message(event_description[:message], event_description[:error], event_description[:info])
+    append_newline(event_description[:message])
+    return event_description[:message] if tagging_disabled
 
     tags = []
-    tags << log_hash[:pid] unless tag_without_pid
-    tags << log_hash[:id] if log_hash[:id]
+    tags << event_description[:pid] unless tag_without_pid
+    tags << event_description[:id] if event_description[:id]
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
     else
       prefix = ''
     end
-    prefix = "[#{log_hash[:time]}] #{prefix}" if tag_with_timestamp
+    prefix = "[#{event_description[:time]}] #{prefix}" if tag_with_timestamp
 
     out = ''
-    log_hash[:message].split("\n").each_with_index do |line, i|
+    event_description[:message].split("\n").each_with_index do |line, i|
       out << prefix << spacer << line << "\n"
     end
     out
