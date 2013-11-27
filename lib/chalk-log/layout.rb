@@ -31,7 +31,9 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
-    id = meta[:id] || action_id
+    id = meta[:id] if meta
+    id ||= action_id
+
     pid = Process.pid
 
     event_description = {
