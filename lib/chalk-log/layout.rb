@@ -31,7 +31,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
 
-    id = interpret_meta(level, meta)
+    id = meta[:id] || action_id
     pid = Process.pid
 
     event_description = {
@@ -202,16 +202,6 @@ class Chalk::Log::Layout < ::Logging::Layout
       out << prefix << line << "\n"
     end
     out
-  end
-
-  def interpret_meta(level, meta)
-    if meta
-      id = meta[:id]
-    end
-
-    id ||= action_id
-
-    id
   end
 
   def timestamp_prefix(now)
