@@ -2,7 +2,7 @@ require 'json'
 require 'set'
 require 'time'
 
-RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'id', 'pid', 'error', 'backtrace', 'error_class'].to_set
+RESERVED_KEYS = ['message', 'time', 'level', 'meta', 'action_id', 'pid', 'error', 'backtrace', 'error_class'].to_set
 
 # Pass metadata options as a leading hash. Everything else is
 # combined into a single logical hash.
@@ -40,7 +40,7 @@ class Chalk::Log::Layout < ::Logging::Layout
       :time => timestamp_prefix(time),
       :pid => pid,
       :level => Chalk::Log::LEVELS[level],
-      :id => id,
+      :action_id => id,
       :message => message,
       :meta => meta,
       :error => error,
@@ -191,7 +191,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     tags = []
     tags << event_description[:pid] unless tag_without_pid
-    tags << event_description[:id] if event_description[:id]
+    tags << event_description[:action_id] if event_description[:action_id]
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
     else
