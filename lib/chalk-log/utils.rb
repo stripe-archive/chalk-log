@@ -1,6 +1,6 @@
 module Chalk::Log::Utils
   def self.format_backtrace(backtrace)
-    if depth = Chalk::Log::Config[:backtrace_depth]
+    if chalk_config_development? && (depth = Chalk::Log::Config[:backtrace_depth])
       non_library_line_found = false
       remaining_lines = depth
       lines = []
@@ -22,11 +22,24 @@ module Chalk::Log::Utils
   end
 
   def self.non_library_line?(line)
-    # TODO: we can probably actually auto-detect this.
-    if regex = Chalk::Log::Config[:our_code_regex]
-      line =~ regex
+    # Relative paths are never library lines
+    return true unless line.start_with?('/')
+
+    if chalk_config_development?
+      # An absolute path starting with the basedir is also not a
+      # library line.
+      base = Chalk::Tools::PathUtils.path
+      line.start_with?(base)
     else
-      true
+      false
     end
+  end
+
+  def self.chalk_config_loaded?
+    defined?(Chalk::Config) && Chalk::Config.initialized?
+  end
+
+  def self.chalk_config_development?
+    chalk_config_loaded? && Chalk::Config.development?
   end
 end
