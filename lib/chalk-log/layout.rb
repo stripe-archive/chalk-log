@@ -38,13 +38,13 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     event_description = {
       :time => timestamp_prefix(time),
-      :pid => pid,
       :level => Chalk::Log::LEVELS[level],
       :action_id => id,
       :message => message,
       :meta => meta,
       :error => error,
-      :info => info
+      :info => info,
+      :pid => pid
     }.reject {|k,v| v.nil?}
 
     case output_format
@@ -155,7 +155,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     end
 
     backtrace = error.backtrace || ['(no backtrace)']
-    message << error.to_s << ' (' << error.class.to_s << ")\n  "
+    message << error.to_s << ' (' << error.class.to_s << ")\n"
     message << Chalk::Log::Utils.format_backtrace(backtrace)
 
     message
@@ -166,18 +166,17 @@ class Chalk::Log::Layout < ::Logging::Layout
     error = event_description.delete(:error)
     time = event_description.delete(:time)
 
-    components = []
-    components << "[#{time}]" if tag_with_timestamp
-    event_description.each {|key, value| components << display(key, value)}
-    user_attributes.each {|key, value| components << display(key, value, true)}
+    message = ""
+    event_description.each {|key, value| message << " " + display(key, value)}
+    user_attributes.each {|key, value| message << " " + display(key, value, true)}
 
     if error
-      components << display(:error, error.to_s)
-      components << display(:error_class, error.class.to_s)
-      components << "backtrace=\n  #{Chalk::Log::Utils.format_backtrace(error.backtrace)}" if error.backtrace
+      message << " " + display(:error, error.to_s)
+      message << " " + display(:error_class, error.class.to_s)
+      message << "\n#{Chalk::Log::Utils.format_backtrace(error.backtrace)}" if error.backtrace
     end
 
-    components.join(' ') + "\n"
+    add_tags_and_new_line(message[1 .. -1], time, event_description)
   end
 
   def json_print(event_description)
@@ -189,18 +188,23 @@ class Chalk::Log::Layout < ::Logging::Layout
     append_newline(event_description[:message])
     return event_description[:message] if tagging_disabled
 
+    add_tags_and_new_line(event_description[:message], event_description[:time], event_description)
+  end
+
+  def add_tags_and_new_line(message, time, event_description)
     tags = []
     tags << event_description[:pid] unless tag_without_pid
     tags << event_description[:action_id] if event_description[:action_id]
+
     if tags.length > 0
       prefix = "[#{tags.join('|')}] "
     else
       prefix = ''
     end
-    prefix = "[#{event_description[:time]}] #{prefix}" if tag_with_timestamp
+    prefix = "[#{time}] #{prefix}" if tag_with_timestamp
 
     out = ''
-    event_description[:message].split("\n").each_with_index do |line, i|
+    message.split("\n").each do |line|
       out << prefix << line << "\n"
     end
     out

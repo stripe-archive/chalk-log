@@ -18,7 +18,7 @@ module Chalk::Log::Utils
       lines = backtrace
     end
 
-    lines.join("\n  ")
+    "  " + lines.join("\n  ")
   end
 
   def self.non_library_line?(line)
