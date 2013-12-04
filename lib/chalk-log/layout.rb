@@ -152,8 +152,8 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     if error
       backtrace = error.backtrace || ['(no backtrace)']
-      message << " " + display(:error, error.to_s)
-      message << " " + display(:error_class, error.class.to_s)
+      message << " " << display(:error, error.to_s)
+      message << " " << display(:error_class, error.class.to_s)
       message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
     end
   end
