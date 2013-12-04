@@ -50,12 +50,10 @@ class Chalk::Log::Layout < ::Logging::Layout
     case output_format
     when 'json'
       json_print(event_description)
-    when 'kv'
-      kv_print(event_description)
     when 'pp'
       pretty_print(event_description)
     else
-      raise ArgumentError, "Chalk::Log::Config[:output_format] was not set to a valid setting of 'json', 'kv', or 'pp'."
+      raise ArgumentError, "Chalk::Log::Config[:output_format] was not set to a valid setting of 'json' or 'pp'."
     end
   end
 
@@ -103,8 +101,6 @@ class Chalk::Log::Layout < ::Logging::Layout
       message = ''
     end
 
-    # This isn't actually intended for parsing. Use a JSON output or
-    # something if you want that.
     addition = info.map do |key, value|
       display(key, value)
     end
@@ -149,34 +145,17 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def stringify_error(error, message=nil)
     if message
-      message << ': '
+      message << ':'
     else
       message = ''
     end
 
-    backtrace = error.backtrace || ['(no backtrace)']
-    message << error.to_s << ' (' << error.class.to_s << ")\n"
-    message << Chalk::Log::Utils.format_backtrace(backtrace)
-
-    message
-  end
-
-  def kv_print(event_description)
-    user_attributes = event_description.delete(:info) || {}
-    error = event_description.delete(:error)
-    time = event_description.delete(:time)
-
-    message = ""
-    event_description.each {|key, value| message << " " + display(key, value)}
-    user_attributes.each {|key, value| message << " " + display(key, value, true)}
-
     if error
+      backtrace = error.backtrace || ['(no backtrace)']
       message << " " + display(:error, error.to_s)
       message << " " + display(:error_class, error.class.to_s)
-      message << "\n#{Chalk::Log::Utils.format_backtrace(error.backtrace)}" if error.backtrace
+      message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
     end
-
-    add_tags_and_new_line(message[1 .. -1], time, event_description)
   end
 
   def json_print(event_description)
