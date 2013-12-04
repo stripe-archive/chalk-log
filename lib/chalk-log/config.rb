@@ -2,7 +2,7 @@ module Chalk::Log::Config
   @config = {
     :tag_with_timestamp => STDOUT.tty?,
     :default_level => 'INFO',
-    :output_format => 'kv',
+    :output_format => 'pp',
     :backtrace_depth => 7
   }
 
