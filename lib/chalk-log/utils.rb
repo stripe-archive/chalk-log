@@ -21,6 +21,19 @@ module Chalk::Log::Utils
     "  " + lines.join("\n  ")
   end
 
+  def self.explode_nested_hash(hash, prefix = [])
+    exploded_hash = {}
+    hash.each do |key,value|
+      extended_prefix = prefix.clone << key
+      if value.is_a?(Hash)
+        exploded_hash.merge!(self.explode_nested_hash(value, extended_prefix))
+      else
+        exploded_hash[extended_prefix.join('_')] = value
+      end
+    end
+    exploded_hash
+  end
+
   def self.non_library_line?(line)
     # Relative paths are never library lines
     return true unless line.start_with?('/')
