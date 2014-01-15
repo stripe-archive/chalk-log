@@ -87,6 +87,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   def build_message(message, error, info)
     if message && (error || info)
       message << ': '
+    end
     message = stringify_info(info, message) if info
     message = stringify_error(error, message) if error
     message || ''
