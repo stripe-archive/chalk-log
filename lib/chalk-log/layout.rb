@@ -86,7 +86,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def build_message(message, error, info)
     if message && (error || info)
-      message << ': '
+      message << ':'
     end
     message = stringify_info(info, message) if info
     message = stringify_error(error, message) if error
@@ -101,7 +101,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     addition = info.map do |key, value|
       display(key, value)
     end
-    message << addition.join(' ')
+    message << " " << addition.join(' ')
     message
   end
 
@@ -142,8 +142,8 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def stringify_error(error, message='')
     backtrace = error.backtrace || ['(no backtrace)']
-    message << " " << display(:error, error.to_s)
     message << " " << display(:error_class, error.class.to_s)
+    message << " " << display(:error, error.to_s)
     message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
   end
 
