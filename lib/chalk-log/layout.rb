@@ -110,7 +110,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   # us.
   def display(key, value, escape_keys=false)
     key = display_key(key, escape_keys)
-    value = display_value(value)
+    value = display_value(value, key)
 
     "#{key}=#{value}"
   end
@@ -124,11 +124,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     end
   end
 
-  def display_value(value)
+  def display_value(value, key)
     begin
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
-      dumped = JSON.generate([value])
+      dumped = JSON.respond_to?(:unsafe_generate) ? JSON.unsafe_generate([value]) : JSON.generate([value])
     rescue => e
       e.message << " (while generating display for #{key})"
       raise
