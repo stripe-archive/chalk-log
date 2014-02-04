@@ -85,6 +85,9 @@ class Chalk::Log::Layout < ::Logging::Layout
 
 
   def build_message(message, error, info)
+    if message && (error || info)
+      message << ':'
+    end
     message = stringify_info(info, message) if info
     message = stringify_error(error, message) if error
     message || ''
@@ -94,17 +97,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     message << "\n"
   end
 
-  def stringify_info(info, message=nil)
-    if message
-      message << ': '
-    else
-      message = ''
-    end
-
+  def stringify_info(info, message='')
     addition = info.map do |key, value|
       display(key, value)
     end
-    message << addition.join(' ')
+    message << " " << addition.join(' ')
     message
   end
 
@@ -113,7 +110,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   # us.
   def display(key, value, escape_keys=false)
     key = display_key(key, escape_keys)
-    value = display_value(value)
+    value = display_value(value, key)
 
     "#{key}=#{value}"
   end
@@ -127,11 +124,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     end
   end
 
-  def display_value(value)
+  def display_value(value, key)
     begin
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
-      dumped = JSON.generate([value])
+      dumped = JSON.respond_to?(:unsafe_generate) ? JSON.unsafe_generate([value]) : JSON.generate([value])
     rescue => e
       e.message << " (while generating display for #{key})"
       raise
@@ -143,19 +140,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     value
   end
 
-  def stringify_error(error, message=nil)
-    if message
-      message << ':'
-    else
-      message = ''
-    end
-
-    if error
-      backtrace = error.backtrace || ['(no backtrace)']
-      message << " " << display(:error, error.to_s)
-      message << " " << display(:error_class, error.class.to_s)
-      message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
-    end
+  def stringify_error(error, message='')
+    backtrace = error.backtrace || ['(no backtrace)']
+    message << " " << display(:error_class, error.class.to_s)
+    message << " " << display(:error, error.to_s)
+    message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
   end
 
   def json_print(event_description)

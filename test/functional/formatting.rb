@@ -37,10 +37,27 @@ module Critic::Functional
         )
       end
 
+      it 'log entry from info with exploded hash' do
+        exploded_hash = Chalk::Log::Utils.explode_nested_hash({:key1 => "ValueOne", :key2 => {:a => "A", :b => "Hash"}})
+        event = stub(:data => [{:id => "action"}, "A Message", exploded_hash], :time => Time.new(1979,4,9), :level => 1)
+        assert_equal('[9973|action] A Message: key1=ValueOne key2_a=A key2_b=Hash' + "\n",
+          layout.format(event)
+        )
+      end
+
       it 'log entry from error without a backtrace' do
         event = stub(:data => [{:id => "action"}, "Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
         layout.stubs(:output_format => 'pp')
-        assert_equal('[9973|action] Another Message: error=StandardError error_class=StandardError' +
+        assert_equal('[9973|action] Another Message: error_class=StandardError error=StandardError' +
+          "\n" + '[9973|action]   (no backtrace)' + "\n",
+          layout.format(event)
+        )
+      end
+
+      it 'log entry from error without a backtrace and a info hash' do
+        event = stub(:data => [{:id => "action"}, "Another Message", StandardError.new, {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 3)
+        layout.stubs(:output_format => 'pp')
+        assert_equal('[9973|action] Another Message: key1=ValueOne key2=["An","Array"] error_class=StandardError error=StandardError' +
           "\n" + '[9973|action]   (no backtrace)' + "\n",
           layout.format(event)
         )
@@ -52,7 +69,7 @@ module Critic::Functional
         error.set_backtrace(backtrace)
         event = stub(:data => [{:id => "action"}, "Yet Another Message", error], :time => Time.new(1979,4,9), :level => 3)
         layout.stubs(:output_format => 'pp')
-        assert_equal('[9973|action] Yet Another Message: error=StandardError error_class=StandardError' +
+        assert_equal('[9973|action] Yet Another Message: error_class=StandardError error=StandardError' +
           "\n" + '[9973|action]   a fake' +
           "\n" + '[9973|action]   backtrace' + "\n",
           layout.format(event)
@@ -81,6 +98,14 @@ module Critic::Functional
       it 'log entry from error without a backtrace' do
         event = stub(:data => [{:id => "action"}, "Another Message", StandardError.new], :time => Time.new(1979,4,9), :level => 3)
         assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"level\":\"error\",\"action_id\":\"action\",\"message\":\"Another Message\",\"meta\":{\"id\":\"action\"},\"error\":\"StandardError\",\"pid\":9973}
+",
+          layout.format(event)
+        )
+      end
+
+      it 'log entry from error without a backtrace and a info hash' do
+        event = stub(:data => [{:id => "action"}, "Another Message", StandardError.new, {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 3)
+        assert_equal("{\"time\":\"1979-04-09 00:00:00.000000\",\"level\":\"error\",\"action_id\":\"action\",\"message\":\"Another Message\",\"meta\":{\"id\":\"action\"},\"error\":\"StandardError\",\"info\":{\"key1\":\"ValueOne\",\"key2\":[\"An\",\"Array\"]},\"pid\":9973}
 ",
           layout.format(event)
         )
