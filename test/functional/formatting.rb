@@ -37,6 +37,13 @@ module Critic::Functional
         )
       end
 
+      it 'log entry from info without a message' do
+        event = stub(:data => [{:id => "action"}, {:key1 => "ValueOne", :key2 => ["An", "Array"]}], :time => Time.new(1979,4,9), :level => 1)
+        assert_equal('[9973|action] key1=ValueOne key2=["An","Array"]' + "\n",
+          layout.format(event)
+        )
+      end
+
       it 'log entry from info with exploded hash' do
         exploded_hash = Chalk::Log::Utils.explode_nested_hash({:key1 => "ValueOne", :key2 => {:a => "A", :b => "Hash"}})
         event = stub(:data => [{:id => "action"}, "A Message", exploded_hash], :time => Time.new(1979,4,9), :level => 1)
