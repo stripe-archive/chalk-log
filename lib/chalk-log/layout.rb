@@ -97,12 +97,15 @@ class Chalk::Log::Layout < ::Logging::Layout
     message << "\n"
   end
 
-  def stringify_info(info, message='')
+  def stringify_info(info, message)
     addition = info.map do |key, value|
       display(key, value)
     end
-    message << " " << addition.join(' ')
-    message
+    if message
+      message + " " + addition.join(' ')
+    else
+      addition.join(' ')
+    end
   end
 
   # Probably let other types be logged over time, but for now we
@@ -140,10 +143,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     value
   end
 
-  def stringify_error(error, message='')
+  def stringify_error(error, message)
     backtrace = error.backtrace || ['(no backtrace)']
-    message << " " << display(:error_class, error.class.to_s)
-    message << " " << display(:error, error.to_s)
+    message = message ? message + " " : ""
+    message << display(:error_class, error.class.to_s) << " "
+    message << display(:error, error.to_s)
     message << "\n#{Chalk::Log::Utils.format_backtrace(backtrace)}"
   end
 
