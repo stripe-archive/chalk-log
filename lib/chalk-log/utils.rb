@@ -24,7 +24,7 @@ module Chalk::Log::Utils
   def self.explode_nested_hash(hash, prefix = [])
     exploded_hash = {}
     hash.each do |key,value|
-      extended_prefix = prefix.clone << key
+      extended_prefix = prefix.clone + [key]
       if value.is_a?(Hash)
         exploded_hash.merge!(self.explode_nested_hash(value, extended_prefix))
       else
