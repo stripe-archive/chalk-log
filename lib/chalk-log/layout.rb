@@ -135,13 +135,14 @@ class Chalk::Log::Layout < ::Logging::Layout
       value = dumped[1...-1] # strip off surrounding brackets
     rescue
       value = value.inspect
+      generated_by_inspect = true
     rescue => e
       e.message << " (while generating display for #{key})"
       raise
     end
 
     value = value[1...-1] if value =~ /\A"[A-Z]\w*"\z/ # non-numeric simple strings that start with a capital don't need quotes
-
+    value << " [JSON-FAILED]" if generated_by_inspect
     value
   end
 

@@ -86,7 +86,7 @@ module Critic::Functional
       it 'handles bad unicode' do
         event = stub(:data => [{:id => "action"}, {:key1 => "ValueOne", :key2 => "\xC3"}], :time => Time.new(1979,4,9), :level => 1)
         layout.stubs(:output_format => 'pp')
-        assert_equal("[9973|action] key1=ValueOne key2=\"\\xC3\"\n", layout.format(event))
+        assert_equal("[9973|action] key1=ValueOne key2=\"\\xC3\" [JSON-FAILED]\n", layout.format(event))
       end
     end
 
