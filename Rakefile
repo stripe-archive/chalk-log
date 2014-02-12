@@ -3,6 +3,10 @@ require 'bundler/setup'
 require 'chalk-rake/gem_tasks'
 require 'rake/testtask'
 
+task :default do
+  sh 'rake -T'
+end
+
 Rake::TestTask.new do |t|
   t.libs = ["lib"]
   # t.warning = true
