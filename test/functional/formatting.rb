@@ -82,6 +82,12 @@ module Critic::Functional
           layout.format(event)
         )
       end
+
+      it 'handles bad unicode' do
+        event = stub(:data => [{:id => "action"}, {:key1 => "ValueOne", :key2 => "\xC3"}], :time => Time.new(1979,4,9), :level => 1)
+        layout.stubs(:output_format => 'pp')
+        assert_equal("[9973|action] key1=ValueOne key2=\"\\xC3\"\n", layout.format(event))
+      end
     end
 
     describe 'generates a json' do

@@ -132,6 +132,8 @@ class Chalk::Log::Layout < ::Logging::Layout
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
       dumped = JSON.respond_to?(:unsafe_generate) ? JSON.unsafe_generate([value]) : JSON.generate([value])
+    rescue
+      dumped = [value].inspect
     rescue => e
       e.message << " (while generating display for #{key})"
       raise
