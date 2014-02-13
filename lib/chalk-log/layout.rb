@@ -132,14 +132,14 @@ class Chalk::Log::Layout < ::Logging::Layout
       # Use an Array (and trim later) because Ruby's JSON generator
       # requires an array or object.
       dumped = JSON.respond_to?(:unsafe_generate) ? JSON.unsafe_generate([value]) : JSON.generate([value])
-    rescue => e
-      e.message << " (while generating display for #{key})"
-      raise
+      value = dumped[1...-1] # strip off surrounding brackets
+    rescue
+      value = value.inspect
+      generated_by_inspect = true
     end
 
-    value = dumped[1...-1] # strip off surrounding brackets
     value = value[1...-1] if value =~ /\A"[A-Z]\w*"\z/ # non-numeric simple strings that start with a capital don't need quotes
-
+    value << " [JSON-FAILED]" if generated_by_inspect
     value
   end
 
