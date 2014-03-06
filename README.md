@@ -16,10 +16,14 @@ Use Chalk::Log as follows:
 Chalk::Log will create a `log` method as both a class an instance
 method, which return a class-specific logger.
 
-By default, it tags loglines with helpful information. You can disable
+By default, it tags loglines with helpful information. It will tag everything with the PID and the date. It will also add an `action_id` if it can discover one. You can disable
 tagging using the following:
 
     Chalk::Log::Config[:tagging_disabled] = true
+
+With tagging disabled, the above example would print 
+
+    hello: key="value"
 
 Chalk::Log makes efforts to ensure that inclusion chaining works, so you
 can do things like:
