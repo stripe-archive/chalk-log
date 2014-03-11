@@ -1,0 +1,8 @@
+:tddium:
+  :ruby_version: ruby-1.9.3-p194
+  :bundler_version: 1.3.5
+  :test_pattern:
+    - "test/wholesome/[^_]*.rb"
+    - "test/unit/[^_]*.rb"
+    - "test/integration/[^_]*.rb"
+    - "test/functional/[^_]*.rb"
