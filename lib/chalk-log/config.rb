@@ -1,3 +1,4 @@
+# TODO: this module should go away, to be replaced by configatron
 module Chalk::Log::Config
   @config = {
     :tag_with_timestamp => STDOUT.tty?,
