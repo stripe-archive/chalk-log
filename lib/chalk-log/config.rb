@@ -1,9 +1,9 @@
+# TODO: this module should go away, to be replaced by configatron
 module Chalk::Log::Config
   @config = {
     :tag_with_timestamp => STDOUT.tty?,
     :default_level => 'INFO',
-    :output_format => 'pp',
-    :backtrace_depth => 7
+    :output_format => 'pp'
   }
 
   def self.[](opt)
@@ -20,14 +20,13 @@ module Chalk::Log::Config
 
     config = config.dup
 
-    [:our_code_regex].each do |opt|
+    [:our_code_regex, :backtrace_depth].each do |opt|
       if config.include?(opt) || config.include?(opt.to_s)
         raise "Deprecated config key #{opt.inspect} provided. Please remove it."
       end
     end
 
     [
-      :backtrace_depth,
       :indent_unimportant_loglines,
       :default_outputters,
       :default_level,
