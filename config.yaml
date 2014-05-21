@@ -1,0 +1,7 @@
+chalk:
+  log:
+    default_level: 'DEBUG'
+    tagging: true
+    disabled: false
+    allow_mock_exceptions: false
+    # timestamp: [configured in chalk-log.rb]
