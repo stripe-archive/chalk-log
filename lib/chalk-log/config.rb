@@ -1,7 +1,7 @@
 # TODO: this module should go away, to be replaced by configatron
 module Chalk::Log::Config
   @config = {
-    :tag_with_timestamp => STDOUT.tty?,
+    :tag_with_timestamp => STDERR.tty?,
     :default_level => 'INFO',
     :output_format => 'pp'
   }
