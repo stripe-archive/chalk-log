@@ -26,7 +26,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     info = data.pop if data.last.kind_of?(Hash)
     error = data.pop if exception?(data.last)
-    message = data.pop if data.last.kind_of?(String)
+    message = data.pop.dup if data.last.kind_of?(String)
     meta = data.pop if data.last.kind_of?(Hash)
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0

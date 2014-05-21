@@ -19,6 +19,15 @@ module Critic::Functional
       end
     end
 
+    describe 'when called with a message' do
+      it 'does not mutate the input' do
+        canary = "'hello, world!'"
+        baseline = canary.dup
+        MyClass.log.info(canary)
+        assert_equal(baseline, canary)
+      end
+    end
+
     describe 'generates a pretty_print' do
       before do
         Chalk::Log::Config.update(:tag_with_timestamp => false)
