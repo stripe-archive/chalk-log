@@ -69,6 +69,11 @@ class Chalk::Log::Layout < ::Logging::Layout
   end
 
   def build_message(message, info, error)
+    # Make sure we're not mutating the message that was passed in
+    if message
+      message = message.dup
+    end
+
     if message && (info || error)
       message << ':'
     end
