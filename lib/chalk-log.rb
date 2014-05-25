@@ -32,6 +32,10 @@ module Chalk::Log
   end
 
   def self.included(other)
+    if other == Object
+      raise "You have attempted to `include Chalk::Log` onto Object. This is disallowed, since otherwise it might shadow any `log` method on classes that weren't expecting it (including, for example, `configatron.chalk.log`)."
+    end
+
     other.extend(ClassMethods)
     if other.instance_of?(Module)
       other.class_eval do
