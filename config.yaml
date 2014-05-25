@@ -1,0 +1,6 @@
+chalk:
+  log:
+    default_level: 'INFO'
+    tagging: true
+    disabled: false
+    # timestamp: [configured in chalk-log.rb]

@@ -10,20 +10,21 @@ class Chalk::Log::Logger
     end
   end
 
-  def self.delegate(*methods)
-    methods.each do |name|
-      define_method(name) do |*args, &blk|
-        @backend.send(name, *args, &blk)
-      end
-    end
+  def level
+    @backend.level
   end
-  delegate(:level, :level=)
+
+  def level=(level)
+    @backend.level = level
+  end
 
   def initialize(name)
-    # Need to make sure we're inited before creating a logger.
+    # It's generally a bad pattern to auto-init, but we want
+    # Chalk::Log to be usable anytime during the boot process, which
+    # requires being a little bit less explicit than we usually like.
     Chalk::Log.init
     @backend = ::Logging::Logger.new(name)
-    if level = Chalk::Log::Config[:default_level]
+    if level = configatron.chalk.log.default_level
       @backend.level = level
     end
   end
@@ -31,7 +32,6 @@ class Chalk::Log::Logger
   private
 
   def logging_disabled?
-    ENV['CHALK_NOLOG'] == 'yes' ||
-      (defined?(LSpace) && LSpace[:logging_disabled])
+    configatron.chalk.log.disabled || LSpace[:'chalk.log.disabled']
   end
 end

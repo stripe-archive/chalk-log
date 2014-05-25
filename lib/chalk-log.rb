@@ -1,4 +1,7 @@
 require 'logging'
+require 'lspace'
+
+require 'chalk-config'
 require 'chalk-log/version'
 
 # Include Chalk::Log in a class or module to make that class (and all
@@ -15,6 +18,11 @@ require 'chalk-log/version'
 #   log.debug('Now you do not!')
 # end
 module Chalk::Log
+  require 'chalk-log/config'
+  require 'chalk-log/logger'
+  require 'chalk-log/layout'
+  require 'chalk-log/utils'
+
   LEVELS = [:debug, :info, :warn, :error, :fatal]
 
   @@chalk_logger_modules = {}
@@ -24,6 +32,10 @@ module Chalk::Log
   end
 
   def self.included(other)
+    if other == Object
+      raise "You have attempted to `include Chalk::Log` onto Object. This is disallowed, since otherwise it might shadow any `log` method on classes that weren't expecting it (including, for example, `configatron.chalk.log`)."
+    end
+
     other.extend(ClassMethods)
     if other.instance_of?(Module)
       other.class_eval do
@@ -53,18 +65,20 @@ module Chalk::Log
   end
 
   def self.init
-    return if @inited
+    return if @init
+    @init = true
+
+    # Load relevant configatron stuff
+    Chalk::Config.register(File.expand_path('../../config.yaml', __FILE__),
+      raw: true)
+    Chalk::Config.register_raw(chalk: {log: {timestamp: STDERR.tty?}})
 
     ::Logging.init(*LEVELS)
-    # We've a fork where Logging doesn't swallow errors; use that if
-    # possible.
-    ::Logging.raise_errors(true) if ::Logging.respond_to?(:raise_errors)
     ::Logging.logger.root.add_appenders(
       ::Logging.appenders.stderr(:layout => layout)
       )
-    Chalk::Log::Logger.init
 
-    @inited = true
+    Chalk::Log::Logger.init
   end
 
   def self.layout
@@ -94,8 +108,3 @@ module Chalk::Log
     end
   end
 end
-
-require 'chalk-log/config'
-require 'chalk-log/logger'
-require 'chalk-log/layout'
-require 'chalk-log/utils'
