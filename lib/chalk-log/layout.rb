@@ -43,7 +43,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
     info = data.pop if data.last.kind_of?(Hash)
-    error = data.pop if exception?(data.last)
+    error = data.pop if data.last.kind_of?(Exception)
     message = data.pop if data.last.kind_of?(String)
 
     raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
@@ -125,19 +125,6 @@ class Chalk::Log::Layout < ::Logging::Layout
     message << "\n"
     message << Chalk::Log::Utils.format_backtrace(backtrace)
     message
-  end
-
-  def exception?(object)
-    if object.kind_of?(Exception)
-      true
-    elsif defined?(Mocha::Mock) && object.kind_of?(Mocha::Mock)
-      unless configatron.chalk.log.allow_mock_exceptions
-        raise "Passed a mock even though configatron.chalk.log.allow_mock_exceptions is not set to true. You'll likely want to override that setting in tests."
-      end
-      true
-    else
-      false
-    end
   end
 
   def json(value)

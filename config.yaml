@@ -3,5 +3,4 @@ chalk:
     default_level: 'INFO'
     tagging: true
     disabled: false
-    allow_mock_exceptions: false
     # timestamp: [configured in chalk-log.rb]
