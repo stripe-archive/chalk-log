@@ -149,22 +149,6 @@ module Critic::Functional
         LogTestE.log.info { called = true; "" }
         assert(called, "INFO block not called at INFO level")
       end
-
-      it 'log.error formats correctly' do
-        # TODO: capture the output string
-        msg = 'message'
-        begin
-          raise "foo"
-        rescue => e
-        end
-        MyLog.log.error('message', e)
-        MyLog.log.error(e)
-      end
-
-      it 'log.error does not assert if passed a nil exception' do
-        Chalk::Log::Layout.any_instance.expects(:maybe_assert).never
-        MyLog.log.error('message', nil)
-      end
     end
 
     class TestLogInstanceMethods < Test

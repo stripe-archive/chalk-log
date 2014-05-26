@@ -21,15 +21,15 @@ class Chalk::Log::Layout < ::Logging::Layout
           do_format(event)
         rescue StandardError => e
           # Single fault!
-          stringify_error('[Could not format message] ', e)
+          error!('[Chalk::Log fault: Could not format message] ', e)
         end
       rescue StandardError => e
         # Double fault!
-        "[Double fault while formatting message. This means we couldn't even report the error we got while formatting.] #{e.message}"
+        "[Chalk::Log fault: Double fault while formatting message. This means we couldn't even report the error we got while formatting.] #{e.message}\n"
       end
     rescue StandardError => e
       # Triple fault!
-      "[Triple fault while formatting message. This means we couldn't even report the error we got while reporting the original error.]"
+      "[Chalk::Log fault: Triple fault while formatting message. This means we couldn't even report the error we got while reporting the original error.]\n"
     end
   end
 
@@ -129,6 +129,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     message << display(:error, error.to_s)
     message << "\n"
     message << Chalk::Log::Utils.format_backtrace(backtrace)
+    message << "\n"
     message
   end
 

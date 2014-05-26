@@ -3,4 +3,4 @@ chalk:
     default_level: 'INFO'
     tagging: true
     disabled: false
-    # timestamp: [configured in chalk-log.rb]
+    # timestamp: [see lib/chalk-log.rb]

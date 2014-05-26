@@ -18,7 +18,6 @@ require 'chalk-log/version'
 #   log.debug('Now you do not!')
 # end
 module Chalk::Log
-  require 'chalk-log/config'
   require 'chalk-log/logger'
   require 'chalk-log/layout'
   require 'chalk-log/utils'
