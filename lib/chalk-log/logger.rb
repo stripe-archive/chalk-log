@@ -1,6 +1,11 @@
+# Thin wrapper over Logging::Logger. This is the per-class object
+# instantiated by the `log` method.
 class Chalk::Log::Logger
   attr_reader :backend
 
+  # Initialization of the logger backend. It does the actual creation
+  # of the various logger methods. Will be called automatically upon
+  # your first `log` method call.
   def self.init
     Chalk::Log::LEVELS.each do |level|
       define_method(level) do |*data, &blk|
@@ -10,14 +15,19 @@ class Chalk::Log::Logger
     end
   end
 
+  # The level this logger is set to.
   def level
     @backend.level
   end
 
+  # Set the maximum log level.
+  #
+  # @param level [Fixnum|String|Symbol] A valid Logging::Logger level, e.g. :debug, 0, 'DEBUG', etc.
   def level=(level)
     @backend.level = level
   end
 
+  # Create a new logger, and auto-initialize everything.
   def initialize(name)
     # It's generally a bad pattern to auto-init, but we want
     # Chalk::Log to be usable anytime during the boot process, which
@@ -29,8 +39,8 @@ class Chalk::Log::Logger
     end
   end
 
-  private
-
+  # Check whether logging has been globally turned off, either through
+  # configatron or LSpace.
   def logging_disabled?
     configatron.chalk.log.disabled || LSpace[:'chalk.log.disabled']
   end

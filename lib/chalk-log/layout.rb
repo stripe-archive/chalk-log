@@ -2,12 +2,11 @@ require 'json'
 require 'set'
 require 'time'
 
-# Pass metadata options as a leading hash. Everything else is
-# combined into a single logical hash.
+# The layout backend for the Logging::Logger.
 #
-# log.error('Something went wrong!')
-# log.info('Booting the server on:', host: host)
-# log.error('Something went wrong', e)
+# Accepts a message and/or an exception and/or an info
+# hash (if multiple are passed, they must be provided in that
+# order)
 class Chalk::Log::Layout < ::Logging::Layout
   # Formats an event, and makes a heroic effort to tell you if
   # something went wrong. (Logging will otherwise silently swallow any
@@ -46,7 +45,9 @@ class Chalk::Log::Layout < ::Logging::Layout
     error = data.pop if data.last.kind_of?(Exception)
     message = data.pop if data.last.kind_of?(String)
 
-    raise "Invalid leftover arguments: #{data.inspect}" if data.length > 0
+    if data.length > 0
+      raise Chalk::Log::InvalidArguments.new("Invalid leftover arguments: #{data.inspect}")
+    end
 
     id = action_id
     pid = Process.pid

@@ -125,6 +125,14 @@ module Critic::Functional
       end
 
       describe 'faults' do
+        it 'shows an appropriate error if the invalid arguments are provided' do
+          rendered = layout(data: ['foo', nil])
+
+          lines = rendered.split("\n")
+          assert_equal('[Chalk::Log fault: Could not format message] error_class="Chalk::Log::InvalidArguments" error="Invalid leftover arguments: [\"foo\", nil]"', lines[0])
+          assert(lines.length > 1)
+        end
+
         it 'handles single faults' do
           e = StandardError.new('msg')
           @layout.expects(:do_format).raises(e)
