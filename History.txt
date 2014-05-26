@@ -1,0 +1,6 @@
+=== 0.1.0 2014-05-25
+
+* Started being more strict with arguments passed. In particular,
+  stopped accepting nil or boolean trailing arguments.
+* Switched to using Chalk::Config, eliminating Chalk::Log::Config.
+* You now disable Chalk::Log by setting either of `configatron.chalk.log.disabled || LSpace[:'chalk.log.disabled']`. `ENV["CHALK_NOLOG"]` and `LSpace[:logging_disabled] are now ignored.
