@@ -12,6 +12,10 @@ module Critic::Functional
       configatron.chalk.log.stubs(:timestamp).returns(false)
     end
 
+    def disable_tagging
+      configatron.chalk.log.stubs(:tagging).returns(false)
+    end
+
     before do
       Chalk::Log.init
       Process.stubs(:pid).returns(9973)
@@ -108,6 +112,16 @@ module Critic::Functional
       it 'handles bad unicode' do
         rendered = layout(data: [{:key1 => "ValueOne", :key2 => "\xC3"}])
         assert_equal("[9973] key1=ValueOne key2=\"\\xC3\" [JSON-FAILED]", rendered)
+      end
+
+      it 'allows disabling tagging' do
+        enable_timestamp
+        disable_tagging
+
+        LSpace.with(action_id: 'action') do
+          rendered = layout(data: [{:key1 => "ValueOne", :key2 => "Value Two"}])
+          assert_equal(%Q{key1=ValueOne key2="Value Two"}, rendered)
+        end
       end
 
       describe 'faults' do
