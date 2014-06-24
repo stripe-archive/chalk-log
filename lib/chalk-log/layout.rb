@@ -158,7 +158,9 @@ class Chalk::Log::Layout < ::Logging::Layout
   def tag(message, time, pid, action_id)
     return message unless configatron.chalk.log.tagging
 
-    metadata = [pid, action_id].compact
+    metadata = []
+    metadata << pid if configatron.chalk.log.pid
+    metadata << action_id if action_id
     prefix = "[#{metadata.join('|')}] " if metadata.length > 0
 
     if configatron.chalk.log.timestamp

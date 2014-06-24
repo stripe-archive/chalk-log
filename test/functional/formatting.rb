@@ -12,6 +12,10 @@ module Critic::Functional
       configatron.chalk.log.stubs(:timestamp).returns(false)
     end
 
+    def disable_pid
+      configatron.chalk.log.stubs(:pid).returns(false)
+    end
+
     def disable_tagging
       configatron.chalk.log.stubs(:tagging).returns(false)
     end
@@ -73,6 +77,14 @@ module Critic::Functional
         LSpace.with(action_id: 'action') do
           rendered = layout(data: ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}])
           assert_equal('[1979-04-09 00:00:00.000000] [9973|action] A Message: key1=ValueOne key2=["An","Array"]', rendered)
+        end
+      end
+
+      it 'logs without pid correctly' do
+        disable_pid
+        LSpace.with(action_id: 'action') do
+          rendered = layout(data: ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}])
+          assert_equal('[action] A Message: key1=ValueOne key2=["An","Array"]', rendered)
         end
       end
 

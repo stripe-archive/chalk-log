@@ -6,6 +6,10 @@ chalk:
     # Whether to enable tagging (with timestamp, PID, action_id).
     tagging: true
 
+    # Whether to enable tagging with PID (can be subsumed by
+    # `tagging: false`)
+    pid: true
+
     # Whether to enable tagging with timestamp (can be subsumed by
     # `tagging: false`). This option is set automatically in
     # lib/chalk-log.rb.
