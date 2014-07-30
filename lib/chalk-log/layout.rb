@@ -32,6 +32,15 @@ class Chalk::Log::Layout < ::Logging::Layout
     end
   end
 
+  # Formats a hash for logging. This is provided for (rare) use outside of log
+  # methods; you can pass a hash directly to log methods and this formatting
+  # will automatically be applied.
+  #
+  # @param hash [Hash] The hash to be formatted
+  def format_hash(hash)
+    hash.map {|k, v| display(k, v)}.join(' ')
+  end
+
   private
 
   def do_format(event)
@@ -99,11 +108,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   # Displaying info hash
 
   def info!(message, info)
-    addition = info.map do |key, value|
-      display(key, value)
-    end
-
-    message << addition.join(' ')
+    message << format_hash(info)
   end
 
   def display(key, value)
