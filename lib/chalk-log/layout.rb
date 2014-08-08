@@ -67,7 +67,7 @@ class Chalk::Log::Layout < ::Logging::Layout
       action_id: id,
       message: message,
       error: error,
-      info: info,
+      info: (info && info.merge(contextual_info || {})) || contextual_info,
       pid: pid
       )
   end
@@ -108,7 +108,7 @@ class Chalk::Log::Layout < ::Logging::Layout
   # Displaying info hash
 
   def info!(message, info)
-    message << format_hash(info)
+    message << format_hash(info.merge(contextual_info || {}))
   end
 
   def display(key, value)
@@ -158,6 +158,10 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def action_id
     LSpace[:action_id]
+  end
+
+  def contextual_info
+    LSpace[:'chalk.log.contextual_info']
   end
 
   def tag(message, time, pid, action_id)

@@ -44,4 +44,15 @@ class Chalk::Log::Logger
   def logging_disabled?
     configatron.chalk.log.disabled || LSpace[:'chalk.log.disabled']
   end
+
+  def with_contextual_info(contextual_info={}, &blk)
+    unless blk
+      raise ArgumentError.new("Must pass a block to #{__method__}")
+    end
+    existing_context = LSpace[:'chalk.log.contextual_info'] || {}
+    LSpace.with(
+      :'chalk.log.contextual_info' => contextual_info.merge(existing_context),
+      &blk
+    )
+  end
 end
