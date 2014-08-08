@@ -4,6 +4,17 @@ require 'chalk-log'
 
 module Critic::Functional
   class LogTest < Test
+    def self.add_appender
+      unless @appender
+        @appender = ::Logging.appenders.string_io(
+          'test-stringio',
+          layout: Chalk::Log.layout
+        )
+        ::Logging.logger.root.add_appenders(@appender)
+      end
+      @appender
+    end
+
     before do
       Chalk::Log.init
     end
@@ -157,6 +168,11 @@ module Critic::Functional
       before do
         TestLogInstanceMethods.log.level = 'INFO'
         Chalk::Log.init
+        @appender = LogTest.add_appender
+      end
+
+      def assert_logged(expected_string, *args)
+        assert_includes(@appender.sio.string, expected_string, *args)
       end
 
       it 'accepts blocks on instance methods' do
@@ -164,6 +180,40 @@ module Critic::Functional
         log.debug { assert(false, "DEBUG block called at INFO") }
         log.info { called = true; "" }
         assert(called, "INFO block not called at INFO level")
+      end
+
+      describe 'when contextual info is set' do
+
+        it 'adds contextual information to `.info` log lines' do
+          log.with_contextual_info(key: 'value') {log.info("message")}
+          assert_logged("key=value")
+        end
+
+        it 'nests contexts' do
+          log.with_contextual_info(top_key: "top_value") do
+            log.info("top message")
+            log.with_contextual_info(inner_key: "inner_value") do
+              log.info("inner message")
+            end
+          end
+          %w{top_key=top_value inner_key=inner_value}.each do |pair|
+            assert_logged(pair)
+          end
+        end
+
+        it 'requires a block' do
+          exn = assert_raises(ArgumentError) do
+            log.with_contextual_info(i_am_not: "passing a block")
+          end
+          assert_includes(exn.message, "Must pass a block")
+        end
+
+        it 'requires its argument must be a hash' do
+          exn = assert_raises(TypeError) do
+            log.with_contextual_info('not a hash') {}
+          end
+          assert_includes(exn.message, 'must be a Hash')
+        end
       end
     end
 
