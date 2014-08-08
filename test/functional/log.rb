@@ -207,6 +207,13 @@ module Critic::Functional
           end
           assert_includes(exn.message, "Must pass a block")
         end
+
+        it 'requires its argument must be a hash' do
+          exn = assert_raises(TypeError) do
+            log.with_contextual_info('not a hash') {}
+          end
+          assert_includes(exn.message, 'must be a Hash')
+        end
       end
     end
 

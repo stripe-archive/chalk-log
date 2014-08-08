@@ -49,6 +49,11 @@ class Chalk::Log::Logger
     unless blk
       raise ArgumentError.new("Must pass a block to #{__method__}")
     end
+    unless contextual_info.is_a?(Hash)
+      raise TypeError.new(
+        "contextual_info must be a Hash, but got #{contextual_info.class}"
+      )
+    end
     existing_context = LSpace[:'chalk.log.contextual_info'] || {}
     LSpace.with(
       :'chalk.log.contextual_info' => contextual_info.merge(existing_context),
