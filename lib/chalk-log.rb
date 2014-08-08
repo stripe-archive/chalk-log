@@ -77,7 +77,7 @@ module Chalk::Log
   # Public-facing initialization method for all `Chalk::Log`
   # state. Unlike most other Chalk initializers, this will be
   # automatically run (invoked on first logger instantiation). It is
-  # impotent.
+  # idempotent.
   def self.init
     return if @init
     @init = true
