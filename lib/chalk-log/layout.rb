@@ -131,10 +131,10 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def error!(message, error)
     backtrace = error.backtrace || ['[no backtrace]']
+    message << Chalk::Log::Utils.format_backtrace(backtrace, reverse: true)
+    message << "\n"
     message << display(:error_class, error.class.to_s) << " "
     message << display(:error, error.to_s)
-    message << "\n"
-    message << Chalk::Log::Utils.format_backtrace(backtrace)
     message << "\n"
     message
   end

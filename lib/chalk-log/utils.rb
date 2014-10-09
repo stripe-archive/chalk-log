@@ -1,5 +1,5 @@
 module Chalk::Log::Utils
-  # Nicely formats a backtrace:
+  # Nicely formats a backtrace.
   #
   # ```ruby
   # format_backtrace(['line1', 'line2'])
@@ -10,7 +10,8 @@ module Chalk::Log::Utils
   # (Used internally when `Chalk::Log` is formatting exceptions.)
   #
   # TODO: add autotruncating of backtraces.
-  def self.format_backtrace(backtrace)
+  def self.format_backtrace(backtrace, reverse: false)
+    backtrace = backtrace.reverse if reverse
     "  " + backtrace.join("\n  ")
   end
 
