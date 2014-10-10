@@ -11,6 +11,7 @@ module Chalk::Log::Utils
   #
   # TODO: add autotruncating of backtraces.
   def self.format_backtrace(backtrace)
+    backtrace = truncate(backtrace)
     "  " + backtrace.join("\n  ")
   end
 
@@ -36,5 +37,40 @@ module Chalk::Log::Utils
     end
 
     exploded
+  end
+
+  def self.truncate(backtrace)
+    truncated = []
+    gemdir = Gem.dir
+
+    hit_application = false
+    leading_lines = 0
+    gemlines = 0
+    backtrace.each do |line|
+      if line.start_with?(gemdir)
+        # If we're in a gem, always increment the counter. Record the
+        # first three lines if we haven't seen any application lines
+        # yet.
+        if !hit_application && leading_lines < 3
+          truncated << line
+          leading_lines += 1
+        else
+          gemlines += 1
+        end
+      elsif gemlines > 0
+        # If we were in a gem and now are not, record the number of
+        # lines skipped.
+        truncated << "<#{gemlines} #{gemlines == 1 ? 'line' : 'lines'} omitted>"
+        truncated << line
+        hit_application = true
+        gemlines = 0
+      else
+        # If we're in the application, always record the line.
+        truncated << line
+        hit_application = true
+      end
+    end
+
+    truncated
   end
 end
