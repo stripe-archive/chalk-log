@@ -11,7 +11,10 @@ module Chalk::Log::Utils
   #
   # TODO: add autotruncating of backtraces.
   def self.format_backtrace(backtrace)
-    backtrace = truncate(backtrace)
+    if configatron.chalk.log.compress_backtraces
+      backtrace = compress_backtrace(backtrace)
+    end
+
     "  " + backtrace.join("\n  ")
   end
 
@@ -39,8 +42,9 @@ module Chalk::Log::Utils
     exploded
   end
 
-  def self.truncate(backtrace)
-    truncated = []
+  # Compresses a backtrace
+  def self.compress_backtrace(backtrace)
+    compressed = []
     gemdir = Gem.dir
 
     hit_application = false
@@ -52,7 +56,7 @@ module Chalk::Log::Utils
         # first three lines if we haven't seen any application lines
         # yet.
         if !hit_application && leading_lines < 3
-          truncated << line
+          compressed << line
           leading_lines += 1
         else
           gemlines += 1
@@ -60,17 +64,17 @@ module Chalk::Log::Utils
       elsif gemlines > 0
         # If we were in a gem and now are not, record the number of
         # lines skipped.
-        truncated << "<#{gemlines} #{gemlines == 1 ? 'line' : 'lines'} omitted>"
-        truncated << line
+        compressed << "<#{gemlines} #{gemlines == 1 ? 'line' : 'lines'} omitted>"
+        compressed << line
         hit_application = true
         gemlines = 0
       else
         # If we're in the application, always record the line.
-        truncated << line
+        compressed << line
         hit_application = true
       end
     end
 
-    truncated
+    compressed
   end
 end
