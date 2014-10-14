@@ -42,12 +42,15 @@ module Chalk::Log::Utils
     exploded
   end
 
-  # Compresses a backtrace
+  # Compresses a backtrace, omitting gem lines (unless they appear
+  # before any application lines).
   def self.compress_backtrace(backtrace)
     compressed = []
     gemdir = Gem.dir
 
     hit_application = false
+    # This isn't currently read by anything, but we could easily use
+    # it to limit the number of leading gem lines.
     leading_lines = 0
     gemlines = 0
     backtrace.each do |line|
@@ -55,7 +58,7 @@ module Chalk::Log::Utils
         # If we're in a gem, always increment the counter. Record the
         # first three lines if we haven't seen any application lines
         # yet.
-        if !hit_application && leading_lines < 3
+        if !hit_application
           compressed << line
           leading_lines += 1
         else
