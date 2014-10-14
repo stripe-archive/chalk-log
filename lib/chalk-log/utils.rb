@@ -13,6 +13,7 @@ module Chalk::Log::Utils
   def self.format_backtrace(backtrace)
     if configatron.chalk.log.compress_backtraces
       backtrace = compress_backtrace(backtrace)
+      backtrace << '(Disable backtrace compression by setting configatron.chalk.log.compress_backtraces = false.)'
     end
 
     "  " + backtrace.join("\n  ")
