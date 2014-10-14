@@ -17,3 +17,6 @@ chalk:
 
     # Whether to show logs at all
     disabled: false
+
+    # Whether to remove gem lines from backtraces
+    compress_backtraces: false
