@@ -144,9 +144,9 @@ class Chalk::Log::Layout < ::Logging::Layout
     # requires an array or object.
     wrapped = [value]
 
-    # Chalk::Tools::JSONUtils aliases the raw JSON generation
-    # method. We don't care about emiting raw HTML tags heres, so no
-    # need to use the safe generation method.
+    # We may alias the raw JSON generation method. We don't care about
+    # emiting raw HTML tags heres, so no need to use the safe
+    # generation method.
     if JSON.respond_to?(:unsafe_generate)
       dumped = JSON.unsafe_generate(wrapped)
     else
