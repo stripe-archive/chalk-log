@@ -6,8 +6,8 @@ require 'chalk-log/version'
 Gem::Specification.new do |gem|
   gem.name          = 'chalk-log'
   gem.version       = Chalk::Log::VERSION
-  gem.authors       = ['Greg Brockman', 'Andreas Fuchs', 'Andy Brody', 'Anurag Goel', 'Evan Broder', 'Nelson Elhage']
-  gem.email         = ['gdb@gregbrockman.com', 'asf@boinkor.net', 'andy@stripe.com', '_@anur.ag', 'evan@stripe.com', 'nelhage@nelhage.com']
+  gem.authors       = ['Stripe']
+  gem.email         = ['oss@stripe.com']
   gem.description   = %q{Extends classes with a `log` method}
   gem.summary       = %q{Chalk::Log makes any class loggable. It provides a logger that can be used for both structured and unstructured log.}
   gem.homepage      = 'https://github.com/stripe/chalk-log'

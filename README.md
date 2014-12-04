@@ -124,3 +124,19 @@ configurability. We would be open to making it less rigid,
 however. (In any case, under the hood `Chalk::Log` is just using the
 `logging` gem, so if the need arises it wouldn't be hard to acquire
 the full flexibility of `logging`.)
+
+# Contributors
+
+- Greg Brockman
+- Andreas Fuchs
+- Andy Brody
+- Anurag Goel
+- Evan Broder
+- Nelson Elhage
+- Brian Krausz
+- Christian Anderson
+- Jeff Balogh
+- Jeremy Hoon
+- Julia Evans
+- Russell Davis
+- Steven Noble
