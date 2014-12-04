@@ -127,7 +127,7 @@ the full flexibility of `logging`.)
 
 # Contributors
 
-- Greg Brockman
+- [Greg Brockman](@gdb)
 - Andreas Fuchs
 - Andy Brody
 - Anurag Goel
