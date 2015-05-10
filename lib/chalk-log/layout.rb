@@ -153,7 +153,15 @@ class Chalk::Log::Layout < ::Logging::Layout
       dumped = JSON.generate(wrapped)
     end
 
-    dumped[1...-1] # strip off the brackets we added while array-ifying
+    res = dumped[1...-1] # strip off the brackets we added while array-ifying
+
+    # Bug 6566 in ruby 2.0 (but not 2.1) allows generate() to return an invalid
+    # string when given invalid unicode input. Manually check for it.
+    unless res.valid_encoding?
+      raise ArgumentError.new("invalid byte sequence in UTF-8")
+    end
+
+    res
   end
 
   def action_id
