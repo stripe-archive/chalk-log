@@ -58,13 +58,12 @@ class Chalk::Log::Layout < ::Logging::Layout
       raise Chalk::Log::InvalidArguments.new("Invalid leftover arguments: #{data.inspect}")
     end
 
-    id = action_id
     pid = Process.pid
 
     pretty_print(
       time: timestamp_prefix(time),
       level: Chalk::Log::LEVELS[level],
-      action_id: id,
+      span: span.to_s,
       message: message,
       error: error,
       info: (info && info.merge(contextual_info || {})) || contextual_info,
@@ -74,7 +73,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
   def pretty_print(spec)
     message = build_message(spec[:message], spec[:info], spec[:error])
-    message = tag(message, spec[:time], spec[:pid], spec[:action_id])
+    message = tag(message, spec[:time], spec[:pid], spec[:span])
     message
   end
 
@@ -164,20 +163,23 @@ class Chalk::Log::Layout < ::Logging::Layout
     res
   end
 
-  def action_id
-    LSpace[:action_id]
-  end
-
   def contextual_info
     LSpace[:'chalk.log.contextual_info']
   end
 
-  def tag(message, time, pid, action_id)
+  def span
+    if !LSpace[:span].nil? 
+      return LSpace[:span]
+    end
+    return LSpace[:action_id]
+  end
+
+  def tag(message, time, pid, span)
     return message unless configatron.chalk.log.tagging
 
     metadata = []
     metadata << pid if configatron.chalk.log.pid
-    metadata << action_id if action_id
+    metadata << span if span.length > 0
     prefix = "[#{metadata.join('|')}] " if metadata.length > 0
 
     if configatron.chalk.log.timestamp

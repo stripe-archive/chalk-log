@@ -149,6 +149,34 @@ module Critic::Functional
         end
       end
 
+      it 'logs spans correctly' do
+        enable_timestamp
+        TestSpan = Struct.new(:action_id, :span_id, :parent_id) do
+          def to_s
+            return sprintf("%s %s>%s",
+                           action_id,
+                           parent_id.to_s(16).rjust(16,'0'),
+                           span_id.to_s(16).rjust(16,'0'))
+          end
+        end
+        LSpace.with(span: TestSpan.new("action", 0, 0)) do
+          rendered = layout(data: ["llamas"])
+          assert_equal('[1979-04-09 00:00:00.000000] [9973|action 0000000000000000>0000000000000000] llamas', rendered)
+        end
+        LSpace.with(span: TestSpan.new("action", 2, 0)) do
+          rendered = layout(data: ["llamas"])
+          assert_equal('[1979-04-09 00:00:00.000000] [9973|action 0000000000000000>0000000000000002] llamas', rendered)
+        end
+        LSpace.with(span: TestSpan.new("action", 0, 123)) do
+          rendered = layout(data: ["llamas"])
+          assert_equal('[1979-04-09 00:00:00.000000] [9973|action 000000000000007b>0000000000000000] llamas', rendered)
+        end
+        LSpace.with(span: TestSpan.new("action", 2, 123)) do
+          rendered = layout(data: ["llamas"])
+          assert_equal('[1979-04-09 00:00:00.000000] [9973|action 000000000000007b>0000000000000002] llamas', rendered)
+        end
+      end
+
       describe 'faults' do
         it 'shows an appropriate error if the invalid arguments are provided' do
           rendered = layout(data: ['foo', nil])
