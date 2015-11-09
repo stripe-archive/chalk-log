@@ -19,8 +19,14 @@ systems such as [Splunk](http://www.splunk.com/) or
 It can also pretty-print exceptions for you:
 
 ```ruby
-module A; include Chalk::Log; end
-begin; raise "hi"; rescue => e; end
+module A
+  include Chalk::Log
+end
+begin
+  raise "hi"
+rescue => e
+end
+
 A.log.error('Something went wrong', e)
 #=> Something went wrong: hi (RuntimeError)
 #     (irb):8:in `irb_binding'
