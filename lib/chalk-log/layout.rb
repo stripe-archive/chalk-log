@@ -87,6 +87,11 @@ class Chalk::Log::Layout < ::Logging::Layout
       message << ':'
     end
 
+    if Chalk::Log.message_prefix
+      message ||= ''
+      message.prepend(Chalk::Log.message_prefix)
+    end
+
     if info
       message << ' ' if message
       message ||= ''

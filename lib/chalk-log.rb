@@ -104,6 +104,15 @@ module Chalk::Log
     @layout ||= Chalk::Log::Layout.new
   end
 
+  # Adds a prefix to all logging within the current LSpace context.
+  def self.with_message_prefix(prefix, &blk)
+    LSpace.with(:'chalk.log.message_prefix' => prefix, &blk)
+  end
+
+  def self.message_prefix
+    LSpace[:'chalk.log.message_prefix']
+  end
+
   # Home of the backend `log` method people call; included *and*
   # extended everywhere that includes Chalk::Log.
   module ClassMethods

@@ -78,6 +78,13 @@ module Critic::Functional
         assert_equal('[9973] A Message: key1=ValueOne key2=["An","Array"]', rendered)
       end
 
+      it 'logs the message_prefix correctly' do
+        Chalk::Log.with_message_prefix('PREFIX: ') do
+          rendered = layout(data: ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}])
+          assert_equal('[9973] PREFIX: A Message: key1=ValueOne key2=["An","Array"]', rendered)
+        end
+      end
+
       it 'logs the action_id correctly' do
         LSpace.with(action_id: 'action') do
           rendered = layout(data: ["A Message", {:key1 => "ValueOne", :key2 => ["An", "Array"]}])
