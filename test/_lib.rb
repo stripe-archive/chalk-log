@@ -11,6 +11,7 @@ module Critic
   class Test < ::MiniTest::Spec
     def setup
       # Put any stubs here that you want to apply globally
+      super
     end
   end
 end

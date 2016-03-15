@@ -3,7 +3,7 @@ require File.expand_path('../_lib', __FILE__)
 require 'chalk-log'
 
 module Critic::Functional
-  class LogTest < Test
+  class FormattingTest < Test
     def enable_timestamp
       configatron.unlock! do
         configatron.chalk.log.timestamp = true

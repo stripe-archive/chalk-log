@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'logging'
   gem.add_dependency 'lspace'
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'minitest', '~> 3.2.0'
+  gem.add_development_dependency 'minitest', '~> 5.5'
   gem.add_development_dependency 'mocha'
   gem.add_development_dependency 'chalk-rake'
 end
