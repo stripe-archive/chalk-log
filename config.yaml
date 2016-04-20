@@ -20,3 +20,6 @@ chalk:
 
     # Whether to remove gem lines from backtraces
     compress_backtraces: false
+
+    # Whether to display backtraces at all
+    display_backtraces: true
