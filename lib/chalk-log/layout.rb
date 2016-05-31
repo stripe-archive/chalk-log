@@ -137,9 +137,11 @@ class Chalk::Log::Layout < ::Logging::Layout
     backtrace = error.backtrace || ['[no backtrace]']
     message << display(:error_class, error.class.to_s) << " "
     message << display(:error, error.to_s)
-    message << "\n"
-    message << Chalk::Log::Utils.format_backtrace(backtrace)
-    message << "\n"
+    if configatron.chalk.log.display_backtraces
+      message << "\n"
+      message << Chalk::Log::Utils.format_backtrace(backtrace)
+      message << "\n"
+    end
     message
   end
 

@@ -28,6 +28,12 @@ module Critic::Functional
       end
     end
 
+    def disable_backtraces
+      configatron.unlock! do
+        configatron.chalk.log.display_backtraces = false
+      end
+    end
+
     before do
       Chalk::Log.init
       Process.stubs(:pid).returns(9973)
@@ -130,6 +136,16 @@ module Critic::Functional
 
         rendered = layout(data: ["Yet Another Message", error])
         assert_equal("[9973] Yet Another Message: error_class=StandardError error=msg\n[9973]   a fake\n[9973]   backtrace", rendered)
+      end
+
+      it 'hides backtraces when they are disabled' do
+        error = StandardError.new('msg')
+        backtrace = ["a fake", "backtrace"]
+        error.set_backtrace(backtrace)
+
+        disable_backtraces
+        rendered = layout(data: ['Even more messages', error])
+        assert_equal('[9973] Even more messages: error_class=StandardError error=msg', rendered)
       end
 
       it 'renders an error passed alone' do
