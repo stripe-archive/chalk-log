@@ -202,8 +202,10 @@ module Critic::Functional
         end
 
         it 'prefers explicit information over the context' do
-          log.with_contextual_info(key: 'value') {log.info("message", key: 'inner')}
-          assert_logged("key=inner")
+          log.with_contextual_info(omg: 'wtf') do
+            log.info("message", omg: 'ponies')
+          end
+          assert_logged("omg=ponies")
         end
 
         it 'requires a block' do

@@ -50,6 +50,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
+    data = data.dup # Make a private copy that we can mutate
     info = data.pop if data.last.kind_of?(Hash)
     error = data.pop if data.last.kind_of?(Exception)
     message = data.pop if data.last.kind_of?(String)
