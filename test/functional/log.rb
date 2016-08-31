@@ -201,6 +201,13 @@ module Critic::Functional
           end
         end
 
+        it 'prefers explicit information over the context' do
+          log.with_contextual_info(omg: 'wtf') do
+            log.info("message", omg: 'ponies')
+          end
+          assert_logged("omg=ponies")
+        end
+
         it 'requires a block' do
           exn = assert_raises(ArgumentError) do
             log.with_contextual_info(i_am_not: "passing a block")

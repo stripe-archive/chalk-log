@@ -50,6 +50,7 @@ class Chalk::Log::Layout < ::Logging::Layout
 
     # Data provided by blocks may not be arrays yet
     data = [data] unless data.kind_of?(Array)
+    data = data.dup # Make a private copy that we can mutate
     info = data.pop if data.last.kind_of?(Hash)
     error = data.pop if data.last.kind_of?(Exception)
     message = data.pop if data.last.kind_of?(String)
@@ -66,7 +67,7 @@ class Chalk::Log::Layout < ::Logging::Layout
       span: span.to_s,
       message: message,
       error: error,
-      info: (info && info.merge(contextual_info || {})) || contextual_info,
+      info: (info && (contextual_info || {}).merge(info)) || contextual_info,
       pid: pid
       )
   end
@@ -95,7 +96,7 @@ class Chalk::Log::Layout < ::Logging::Layout
     if info
       message << ' ' if message
       message ||= ''
-      info!(message, info)
+      message << format_hash(info)
     end
 
     if error
@@ -107,12 +108,6 @@ class Chalk::Log::Layout < ::Logging::Layout
     message ||= ''
     message << "\n"
     message
-  end
-
-  # Displaying info hash
-
-  def info!(message, info)
-    message << format_hash(info.merge(contextual_info || {}))
   end
 
   def display(key, value)
