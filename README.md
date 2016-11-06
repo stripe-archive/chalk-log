@@ -39,7 +39,7 @@ A.log.error('Something went wrong', e)
 The log methods accept a message and/or an exception and/or an info
 hash (if multiple are passed, they must be provided in that
 order). The log methods will never throw an exception, but will
-instead print an log message indicating they had a fault.
+instead print a log message indicating they had a fault.
 
 ## Overview
 
