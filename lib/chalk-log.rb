@@ -129,15 +129,15 @@ module Chalk::Log
   include ClassMethods
 
   # The technique here is a bit tricky. The same `log` implementation
-  # defined on any class needs to be callable by either an instance or
-  # class. (See the "correctly make the end class loggable when it has
+  # defined on any class/module needs to be callable by either an instance or
+  # the class/module itself. (See the "correctly make the end class loggable when it has
   # already included loggable" test for why. In particular, someone
-  # may have already included me, and then clobbered the class
+  # may have already included me, and then clobbered the class/module
   # implementations by extending me.) Hence we do this "defer to
-  # class, unless I am a class" logic.
+  # class, unless I am a class/module" logic.
   log = instance_method(:log)
   define_method(:log) do
-    if self.kind_of?(Class)
+    if self.kind_of?(Module)
       log.bind(self).call
     else
       self.class.log
