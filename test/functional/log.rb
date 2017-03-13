@@ -119,6 +119,9 @@ module Critic::Functional
         it 'make the extendee loggable' do
           module ExtendLogTestA
             include Chalk::Log
+            def say_hi
+              log.info('hello')
+            end
           end
 
           module ExtendLogTestB
@@ -127,6 +130,7 @@ module Critic::Functional
 
           assert(ExtendLogTestB < Chalk::Log)
           assert(ExtendLogTestB.respond_to?(:log))
+          assert(ExtendLogTestB.say_hi)
         end
       end
     end
