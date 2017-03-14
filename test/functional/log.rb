@@ -164,6 +164,32 @@ module Critic::Functional
         LogTestE.log.info { called = true; "" }
         assert(called, "INFO block not called at INFO level")
       end
+
+      it 'respects changes to the global log level by default' do
+        begin
+          root_lvl = Chalk::Log.level
+          Chalk::Log.level = "WARN"
+
+          MyLog.log.info { assert(false, "INFO block called at WARN level") }
+        ensure
+          Chalk::Log.level = root_lvl
+        end
+      end
+
+      it 'ignores changes to the global log level when a local one is set' do
+        begin
+          root_lvl = Chalk::Log.level
+          MyLog.log.level = "INFO"
+          Chalk::Log.level = "WARN"
+
+          called = false
+          MyLog.log.info { called = true; "" }
+          assert(called, "INFO block not called at INFO level")
+        ensure
+          Chalk::Log.level = root_lvl
+          MyLog.log.level = nil
+        end
+      end
     end
 
     class TestLogInstanceMethods < Test
