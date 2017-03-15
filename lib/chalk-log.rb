@@ -113,6 +113,25 @@ module Chalk::Log
     LSpace[:'chalk.log.message_prefix']
   end
 
+  def self.level=(lvl)
+    _root_backend.level = lvl
+  end
+
+  def self.level
+    _root_backend.level
+  end
+
+  # This should only be called from Chalk::Log::Logger
+  def self._root_backend
+    @root_backend ||= begin
+      backend = ::Logging::Logger.new("CHALK_LOG_ROOT")
+      if (level = configatron.chalk.log.default_level)
+        backend.level = level
+      end
+      backend
+    end
+  end
+
   # Home of the backend `log` method people call; included *and*
   # extended everywhere that includes Chalk::Log.
   module ClassMethods
