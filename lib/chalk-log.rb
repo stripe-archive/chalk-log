@@ -36,6 +36,13 @@ module Chalk::Log
   # add.)
   LEVELS = [:debug, :info, :warn, :error, :fatal].freeze
 
+  module Clevels
+    Sheddable = 'sheddable'
+    SheddablePlus = 'sheddableplus'
+    Critical = 'critical'
+    CriticalPlus = 'criticalplus'
+  end
+
   @included = Set.new
 
   # Method which goes through heroic efforts to ensure that the whole
