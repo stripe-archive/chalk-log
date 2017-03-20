@@ -37,10 +37,10 @@ module Chalk::Log
   LEVELS = [:debug, :info, :warn, :error, :fatal].freeze
 
   module CLevels
-    Sheddable = 'sheddable'
-    SheddablePlus = 'sheddableplus'
-    Critical = 'critical'
-    CriticalPlus = 'criticalplus'
+    Sheddable = :sheddable
+    SheddablePlus = :sheddableplus
+    Critical = :critical
+    CriticalPlus = :criticalplus
   end
 
   @included = Set.new
