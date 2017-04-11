@@ -231,6 +231,16 @@ module Critic::Functional
           end
         end
 
+        it 'respects precedence of contextual info' do
+          log.with_contextual_info(nested_key: "top_value") do
+            log.info("top message")
+            log.with_contextual_info(nested_key: "inner_value") do
+              log.info("inner message")
+            end
+          end
+          assert_logged("nested_key=inner_value")
+        end
+
         it 'prefers explicit information over the context' do
           log.with_contextual_info(omg: 'wtf') do
             log.info("message", omg: 'ponies')
