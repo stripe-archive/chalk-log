@@ -5,5 +5,5 @@
 end || source('https://rubygems.org/')
 
 gemspec
-gem 'stripe-rubocop', '0.4.4'
+gem 'rubocop', '0.48.1'
 gem 'pry'

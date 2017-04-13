@@ -1,6 +1,7 @@
 require_relative '../_lib'
 require_relative '../../../rubocop/clevel_constant.rb'
-require 'stripe-rubocop'
+require_relative './helpers.rb'
+require 'rubocop'
 
 
 module Critic::Unit
