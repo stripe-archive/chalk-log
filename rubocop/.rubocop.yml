@@ -1,0 +1,5 @@
+inherit_gem:
+  stripe-rubocop: .rubocop.yml
+
+inherit_from:
+  - rubocop/config.yml
