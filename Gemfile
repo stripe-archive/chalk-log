@@ -5,5 +5,5 @@
 end || source('https://rubygems.org/')
 
 gemspec
-gem 'rubocop', '~> 0.47.0'
+gem 'rubocop', '~> 0.47.1'
 gem 'pry'
