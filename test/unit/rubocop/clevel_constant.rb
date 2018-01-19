@@ -39,6 +39,7 @@ module Critic::Unit
 
     bad_cop('rejects an info with string literal', bad_log)
     bad_cop('rejects an info with an invalid clevel', 'log.info("something", clevel: Chalk::Log::CLevels::Sleddable)')
+    bad_cop('catches static calls', 'Opus::Log.info("something", clevel: Chalk::Log::CLevels::Sleddable)')
 
   end
 end

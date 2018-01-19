@@ -40,9 +40,6 @@ module PrisonGuard
       return unless receiver
       return unless receiver.children
 
-      return if receiver.children.length != 2
-      return if receiver.children[1] != :log
-
       return if !LOG_METHODS.include?(method_name.to_s)
       return unless hashargs
       return if hashargs.type != :hash
