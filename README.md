@@ -1,3 +1,5 @@
+# DEPRECATED: Stripe no longer support Chalk::Log
+
 # Chalk::Log
 
 `Chalk::Log` adds a logger object to any class, which can be used for
