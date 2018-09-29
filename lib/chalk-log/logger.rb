@@ -62,7 +62,7 @@ class Chalk::Log::Logger
     end
     existing_context = LSpace[:'chalk.log.contextual_info'] || {}
     LSpace.with(
-      :'chalk.log.contextual_info' => contextual_info.merge(existing_context),
+      :'chalk.log.contextual_info' => existing_context.merge(contextual_info),
       &blk
     )
   end
